@@ -1,0 +1,99 @@
+.topnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 14px 32px;
+    background: white;
+    border-bottom: 1px solid #E0D8CE;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.topnav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.topnav-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #0D5C4D;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.topnav-wordmark {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0D5C4D;
+    letter-spacing: 0.02em;
+}
+
+.topnav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.topnav-link {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1A1A1A;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.topnav-link-active {
+    color: #0D5C4D;
+}
+
+.topnav-link-soon {
+    color: #9A9A9A;
+    cursor: default;
+}
+
+.topnav-soon-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #F0EAE0;
+    color: #9A9A9A;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+.topnav-cta {
+    background-color: #0D5C4D;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.topnav-cta:hover {
+    background-color: #0A4D3C;
+}
+
+@media (max-width: 720px) {
+    .topnav-links {
+        display: none;
+    }
+}

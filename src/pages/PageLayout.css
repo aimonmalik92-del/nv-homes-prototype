@@ -1,0 +1,56 @@
+.page-layout {
+    min-height: 100vh;
+    background-color: #F7ECDF;
+    color: #1A1A1A;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.page-header {
+    padding: 24px 28px;
+}
+
+.back-link {
+    color: #0D5C4D;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.page-main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    text-align: center;
+}
+
+.page-main h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0D5C4D;
+    margin-bottom: 12px;
+}
+
+.page-subtitle {
+    font-size: 15px;
+    color: #6B6B6B;
+    margin-bottom: 32px;
+}
+
+.page-content {
+    background: white;
+    border: 1px solid #E0D8CE;
+    border-radius: 16px;
+    padding: 32px 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    text-align: left;
+}
+
+.page-content p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #1A1A1A;
+}
