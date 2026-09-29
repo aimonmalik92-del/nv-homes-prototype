@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Timeline &amp; Progress - NEXTRACK</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: #F7ECDF;
+    color: #1A1A1A;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ============ Hamburger + Sidebar (matches homepage) ============ */
+.menu-btn {
+    position: fixed; top: 18px; left: 20px; z-index: 300;
+    background: none; border: none; cursor: pointer;
+    display: flex; flex-direction: column; gap: 5px; padding: 8px;
+}
+.menu-btn span {
+    display: block; width: 22px; height: 2px;
+    background-color: #0D5C4D; border-radius: 2px; transition: all .3s ease;
+}
+.menu-btn.open span { background-color: #ffffff; }
+
+.sidebar {
+    width: 70px; background-color: #0D5C4D; height: 100vh;
+    position: fixed; left: -70px; top: 0;
+    display: flex; flex-direction: column; justify-content: space-between;
+    align-items: center; padding: 20px 0; z-index: 250; transition: left .3s ease;
+}
+.sidebar.open { left: 0; }
+.sidebar-logo { width:40px;height:40px;margin-top:48px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;cursor:pointer; }
+.sidebar-logo-text { width:34px;height:34px;background:#fff;color:#0D5C4D;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px; }
+.sidebar-nav { display:flex;flex-direction:column;gap:6px;align-items:center; }
+.nav-item {
+    width:44px;height:44px;border-radius:10px;border:none;background:transparent;
+    color:rgba(255,255,255,.85);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:.2s;position:relative;
+}
+.nav-item:hover { background-color: rgba(255,255,255,.15); color:#fff; }
+.nav-item.active { background-color: rgba(255,255,255,.22); color:#fff; }
+.nav-item::after {
+    content: attr(data-tooltip); position:absolute; left:56px; top:50%; transform:translateY(-50%);
+    background:#1A1A1A; color:#fff; padding:6px 12px; border-radius:6px; font-size:13px;
+    white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .2s; z-index:300;
+}
+.nav-item:hover::after { opacity:1; }
+.sidebar-bottom { margin-bottom:10px; }
+.user-avatar { width:36px;height:36px;border-radius:50%;background:#2ECC71;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px; }
+
+/* ============ Top bar ============ */
+.top-bar {
+    margin: 0 auto;
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 22px 56px;
+}
+.brand-mini { display:flex; align-items:center; gap:10px; cursor:pointer; margin-left: 44px; }
+.brand-mini .dot { width:30px;height:30px;border-radius:8px;background:#0D5C4D;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px; }
+.brand-mini span { font-weight:700; color:#0D5C4D; font-size:15px; }
+.auth-buttons { display:flex; align-items:center; gap:20px; }
+.sign-in { color:#0D5C4D; text-decoration:none; font-weight:600; font-size:15px; }
+.sign-up { background:#0D5C4D; color:#fff; text-decoration:none; font-weight:600; font-size:14px; padding:10px 22px; border-radius:8px; }
+
+/* ============ Page heading ============ */
+.page-head { max-width:1320px; margin:0 auto; padding: 26px 56px 22px; }
+.page-head .eyebrow { color:#0D5C4D; font-size:12px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; margin-bottom:8px; }
+.page-head h1 { font-size:38px; font-weight:700; line-height:1.15; letter-spacing:-0.5px; margin-bottom:12px; }
+.page-head p { font-size:15px; color:#4a4a4a; line-height:1.7; max-width:820px; }
+.page-head p b { color:#0D5C4D; }
+.pt-wrap { max-width:1320px; margin:0 auto; padding: 0 56px 60px; }
+.footer { text-align:center; padding:24px; font-size:12.5px; color:#8a8a8a; }
+
+/* ============ Timeline app (scoped under .pt) ============ */
+.pt { --g:#0D5C4D; --g2:#0A4D3C; --mint:#3ddc97; --line:#E0D8CE; --soft:#E8F5F1; --muted:#6B6B6B; --crit:#C0392B; --warn:#B7791F;
+      --row:46px; font-size:13px; color:#1A1A1A; }
+.pt input, .pt select, .pt button, .pt textarea { font-family:'DM Sans',sans-serif; }
+
+.pt-controls { display:grid; grid-template-columns: repeat(6, 1fr); gap:12px; margin-bottom:14px; }
+.pt-kpi { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 14px; min-width:0; }
+.pt-kpi small { display:block; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; }
+.pt-kpi b { font-size:18px; color:var(--g); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.pt-kpi b.bad { color:var(--crit); } .pt-kpi b.good { color:#1e7b3c; }
+.pt-kpi input { width:100%; border:1.5px solid var(--line); border-radius:8px; padding:6px 8px; font-size:13.5px; font-weight:600; color:var(--g); background:#FDFBF8; }
+.pt-kpi input:focus { outline:none; border-color:var(--g); }
+.pt-kpi .sub { font-size:11.5px; color:var(--muted); margin-top:2px; }
+.pt-pbar { height:6px; background:#EFEAE1; border-radius:4px; margin-top:7px; position:relative; overflow:hidden; }
+.pt-pbar i { position:absolute; left:0; top:0; bottom:0; background:var(--g); border-radius:4px; }
+.pt-pbar i.plan { background:transparent; border-right:2px solid var(--crit); }
+
+.pt-toolbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+.pt-seg { display:inline-flex; background:#fff; border:1px solid var(--line); border-radius:10px; padding:3px; }
+.pt-seg button { border:0; background:transparent; padding:6px 12px; border-radius:7px; font-size:12.5px; font-weight:600; color:var(--muted); cursor:pointer; }
+.pt-seg button.on { background:var(--g); color:#fff; }
+.pt-btn { border:1px solid var(--g); background:var(--g); color:#fff; border-radius:8px; padding:7px 14px; font-size:12.5px; font-weight:700; cursor:pointer; }
+.pt-btn:hover { background:var(--g2); }
+.pt-btn.ghost { background:#fff; color:var(--g); }
+.pt-btn.ghost:hover { background:var(--soft); }
+.pt-spacer { flex:1; }
+.pt-legend { display:flex; flex-wrap:wrap; gap:14px; font-size:11.5px; color:var(--muted); margin:0 0 10px; }
+.pt-legend span { display:inline-flex; align-items:center; gap:6px; }
+.pt-legend i { display:inline-block; width:22px; height:8px; border-radius:3px; }
+.pt-note { font-size:12px; color:var(--muted); font-style:italic; margin-bottom:10px; }
+
+/* part selector buttons */
+.pt-tabs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+.pt-tab { text-align:left; background:#fff; border:2px solid var(--line); border-radius:16px; padding:16px 18px; cursor:pointer; transition:.2s; display:flex; gap:14px; align-items:center; color:#1A1A1A; }
+.pt-tab:hover { border-color:var(--g); box-shadow:0 6px 20px rgba(13,92,77,.10); }
+.pt-tab.on { border-color:var(--g); background:var(--g); color:#fff; box-shadow:0 8px 24px rgba(13,92,77,.22); }
+.pt-tab-ic { flex:none; width:46px; height:46px; border-radius:12px; background:var(--soft); color:var(--g); display:flex; align-items:center; justify-content:center; }
+.pt-tab.on .pt-tab-ic { background:rgba(255,255,255,.16); color:#fff; }
+.pt-tab-tx { flex:1; min-width:0; }
+.pt-tab-tx small { display:block; font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; opacity:.7; }
+.pt-tab-tx b { display:block; font-size:19px; line-height:1.25; }
+.pt-tab-tx span { display:block; font-size:12.5px; opacity:.8; margin-top:2px; }
+.pt-tab-pct { flex:none; text-align:right; }
+.pt-tab-pct b { font-size:22px; display:block; font-variant-numeric:tabular-nums; }
+.pt-tab-pct span { font-size:11px; opacity:.75; }
+.pt-tab-go { font-size:12px; font-weight:700; margin-top:4px; color:var(--g); }
+.pt-tab.on .pt-tab-go { color:#fff; }
+.pt-part[hidden] { display:none; }
+
+/* two parts */
+.pt-part { margin-bottom:26px; }
+.pt-part-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:12px 24px; margin:6px 0 10px; }
+.pt-part-no { display:inline-block; background:var(--g); color:#fff; font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; padding:3px 10px; border-radius:20px; margin-bottom:6px; }
+.pt-part-head h2 { font-size:22px; color:#1A1A1A; line-height:1.2; }
+.pt-part-sub { font-size:12.5px; color:var(--muted); margin-top:2px; }
+.pt-part-stats { display:flex; flex-wrap:wrap; gap:8px; }
+.pt-pill { background:#fff; border:1px solid var(--line); border-radius:10px; padding:6px 12px; font-size:11px; color:var(--muted); line-height:1.3; }
+.pt-pill b { display:block; font-size:13.5px; color:var(--g); font-variant-numeric:tabular-nums; }
+.pt-pill b.bad { color:var(--crit); } .pt-pill b.good { color:#1e7b3c; }
+
+/* grid + gantt */
+.pt-scroll { background:#fff; border:1px solid var(--line); border-radius:14px; position:relative; }
+.pt-table { display:flex; width:100%; }
+.pt-left { flex:none; background:#fff; border-right:2px solid var(--line); border-radius:14px 0 0 14px; }
+.pt-right { position:relative; flex:1; min-width:0; }
+.pt-left .pt-head { border-radius:13px 0 0 0; } .pt-right .pt-head { border-radius:0 13px 0 0; overflow:hidden; }
+.pt-body { overflow:hidden; border-radius:0 0 13px 0; }
+.pt-head { position:sticky; top:0; z-index:3; height:52px; background:var(--g); color:#fff; }
+.pt-left .pt-head { z-index:5; }
+.pt-cols { display:grid; grid-template-columns: 38px 236px 50px 96px 96px; }
+.pt-left .pt-head .pt-cols > div { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; height:52px; display:flex; align-items:center; justify-content:center; text-align:center; padding:0 4px; border-right:1px solid rgba(255,255,255,.15); line-height:1.2; }
+.pt-left .pt-head .pt-cols > div.l { justify-content:flex-start; padding-left:10px; }
+.pt-row { height:var(--row); border-bottom:1px solid #F0EBE2; }
+.pt-left .pt-row > div { display:flex; align-items:center; justify-content:center; padding:0 5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums; font-size:12.5px; border-right:1px solid #F5F1E9; }
+.pt-left .pt-row > div.l { justify-content:flex-start; padding-left:10px; }
+.pt-left .pt-row > div.nm { display:block; line-height:var(--row); }
+.pt-left .pt-row > div.dt { flex-direction:column; gap:2px; font-size:11.5px; line-height:1.15; }
+.pt-left .pt-row > div.dt .pl { color:#9A9A9A; }
+.pt-left .pt-row > div.dt .ac { font-weight:600; }
+.pt-row.sum .dt .ac { font-weight:700; }
+.pt-row.act { cursor:pointer; }
+.pt-row.act:hover, .pt-row.hl { background:#F2FAF7; }
+.pt-row.sum { background:#FBF8F3; font-weight:700; }
+.pt-row.sum .nm { color:var(--g); cursor:pointer; }
+.pt-row.sum .nm::before { content:"▾ "; display:inline-block; width:14px; }
+.pt-row.sum.closed .nm::before { content:"▸ "; }
+.pt-row.ms { font-weight:700; }
+.pt-row.ms .nm { color:var(--g); }
+.pt-row.act .nm { padding-left:22px !important; }
+.pt-var.bad { color:var(--crit); font-weight:700; } .pt-var.good { color:#1e7b3c; font-weight:700; }
+.pt-crit-dot { color:var(--crit); font-weight:700; margin-right:4px; }
+.pt-qc { width:10px; height:10px; border-radius:50%; display:inline-block; background:#E0D8CE; }
+.pt-qc.q-done { background:#2ECC71; } .pt-qc.q-prog { background:#F2C94C; } .pt-qc.q-not { background:#E0D8CE; }
+
+.pt-scale { position:absolute; left:0; right:0; height:26px; display:block; }
+.pt-scale.top { top:0; border-bottom:1px solid rgba(255,255,255,.2); }
+.pt-scale.bot { top:26px; }
+.pt-tick { position:absolute; top:0; height:26px; font-size:11px; line-height:26px; padding-left:5px; border-left:1px solid rgba(255,255,255,.22); white-space:nowrap; overflow:hidden; }
+.pt-scale.top .pt-tick { font-weight:700; }
+.pt-body { position:relative; }
+.pt-gridline { position:absolute; top:0; bottom:0; width:1px; background:#F2EEE7; }
+.pt-gridline.major { background:#E6DFD3; }
+.pt-dd { position:absolute; top:0; bottom:0; width:0; border-left:2px dashed var(--crit); z-index:2; }
+.pt-dd span { position:absolute; top:2px; left:4px; font-size:10px; font-weight:700; color:var(--crit); background:#fff; padding:0 3px; border-radius:3px; white-space:nowrap; }
+.pt-grow { position:relative; }
+.pt-lane { position:absolute; left:0; right:0; top:22px; border-top:1px dashed #EFEAE1; }
+.pt-bl { position:absolute; top:6px; height:11px; background:#C9C2B5; border-radius:3px; }
+.pt-bar { position:absolute; top:26px; height:13px; border-radius:3px; background:#7FB8A8; overflow:hidden; }
+.pt-bar i { position:absolute; left:0; top:0; bottom:0; background:var(--g); }
+.pt-bar.crit { background:#E8A29A; } .pt-bar.crit i { background:var(--crit); }
+.pt-bar.done { background:#6B8F86; } .pt-bar.done i { background:#4A6A62; }
+.pt-lbl { position:absolute; top:25px; font-size:10.5px; color:var(--muted); white-space:nowrap; pointer-events:none; }
+.pt-lbl.pl { top:5px; color:#A39B8C; }
+.pt-sumbl { position:absolute; top:8px; height:7px; background:#C9C2B5; border-radius:2px; }
+.pt-sumbar { position:absolute; top:27px; height:8px; background:#1A1A1A; }
+.pt-sumbar::before, .pt-sumbar::after { content:""; position:absolute; bottom:-5px; border:5px solid transparent; border-top-color:#1A1A1A; }
+.pt-sumbar::before { left:-5px; } .pt-sumbar::after { right:-5px; }
+.pt-ms { position:absolute; top:26px; width:13px; height:13px; background:#1A1A1A; transform:rotate(45deg); margin-left:-6px; }
+.pt-ms.pl { top:5px; background:#C9C2B5; }
+.pt-ms.done { background:var(--g); }
+
+/* edit panel */
+.pt-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; display:flex; align-items:center; justify-content:center; padding:16px; }
+.pt-overlay[hidden] { display:none; }
+.pt-modal { background:#fff; border-radius:18px; width:100%; max-width:560px; max-height:92vh; overflow:auto; padding:26px 26px 22px; box-shadow:0 20px 60px rgba(0,0,0,.3); }
+.pt-modal h3 { font-size:18px; color:#1A1A1A; margin-bottom:4px; padding-right:30px; }
+.pt-modal .ph { font-size:12px; color:var(--muted); margin-bottom:16px; }
+.pt-close { float:right; border:0; background:none; font-size:26px; line-height:1; color:#999; cursor:pointer; }
+.pt-close:hover { color:#1A1A1A; }
+.pt-form { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.pt-f label { display:block; font-size:12px; font-weight:600; color:var(--g); margin-bottom:6px; }
+.pt-f input, .pt-f textarea { width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:14px; background:#FDFBF8; color:#1A1A1A; }
+.pt-f input:focus, .pt-f textarea:focus { outline:none; border-color:var(--g); }
+.pt-f .hint { font-size:11px; color:#9A9A9A; margin-top:4px; }
+.pt-f.full { grid-column:1/-1; }
+.pt-range { display:flex; gap:10px; align-items:center; }
+.pt-range input[type=range] { flex:1; accent-color:var(--g); padding:0; border:0; background:none; }
+.pt-range input[type=number] { width:80px; }
+.pt-info { margin-top:16px; background:#FBF8F3; border:1px solid var(--line); border-radius:12px; padding:12px 14px; display:grid; grid-template-columns:1fr 1fr; gap:8px 16px; font-size:12.5px; }
+.pt-info div span { display:block; color:var(--muted); font-size:11px; }
+.pt-info div b { font-variant-numeric:tabular-nums; }
+.pt-info div b .pt-qc { display:inline-block; vertical-align:-1px; margin-right:4px; }
+.pt-modal-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+.pt-modal-actions a { text-decoration:none; }
+
+@media (max-width: 980px) {
+  .pt-controls { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 760px) {
+  .pt-tabs { grid-template-columns:1fr; gap:10px; }
+  .pt-tab { padding:12px 14px; }
+  .pt-tab-tx b { font-size:17px; }
+  .top-bar { padding: 18px 20px; }
+  .brand-mini { margin-left: 40px; }
+  .page-head { padding: 16px 16px 18px; }
+  .page-head h1 { font-size:28px; }
+  .pt-wrap { padding: 0 16px 50px; }
+  .pt-controls { grid-template-columns: repeat(2, 1fr); gap:10px; }
+  .pt-cols { grid-template-columns: 26px 118px 34px; }
+  .pt-cols > .c-st, .pt-cols > .c-fi { display:none !important; }
+  .pt-lbl { display:none; }
+  .pt-left .pt-row > div.nm { font-size:11.5px; }
+  .pt-row.act .nm { padding-left:14px !important; }
+  .pt-form, .pt-info { grid-template-columns:1fr; }
+  .pt-modal { padding:22px 18px 18px; }
+}
+@media print {
+  @page { size: A3 landscape; margin: 10mm; }
+  .menu-btn, .sidebar, .top-bar, .page-head, .footer, .pt-toolbar, .pt-note, .pt-overlay { display:none !important; }
+  .pt-wrap { padding:0; max-width:none; }
+  .pt-scroll { max-height:none; overflow:visible; border:0; }
+  .pt-head { position:static; }
+  .pt-controls { grid-template-columns: repeat(6, 1fr); }
+  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+}
+</style>
+</head>
+<body>
+
+<button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+        <div class="sidebar-logo" onclick="window.location.href='app.html'" title="Back to NEXTRACK Assistant">
+            <div class="sidebar-logo-text">N</div>
+        </div>
+        <nav class="sidebar-nav">
+            <button class="nav-item" data-tooltip="Search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+            </button>
+            <button class="nav-item" data-tooltip="New Chat">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+            </button>
+            <button class="nav-item" data-tooltip="Calculate Budget" onclick="window.location.href='calculate-budget.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><path d="M8 6h8M8 10h8M8 14h4"></path></svg>
+            </button>
+            <button class="nav-item" data-tooltip="Construction SOP's">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </button>
+            <button class="nav-item" data-tooltip="Quality Checklists" onclick="window.location.href='quality-checklist.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            </button>
+            <button class="nav-item" data-tooltip="Project" onclick="window.location.href='budget-tracking-system.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </button>
+            <button class="nav-item" data-tooltip="History">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </button>
+        </nav>
+    </div>
+    <div class="sidebar-bottom">
+        <div class="user-avatar"><span>B</span></div>
+    </div>
+</aside>
+
+<header class="top-bar">
+    <div class="brand-mini" onclick="window.location.href='app.html'">
+        <div class="dot">N</div>
+        <span>NEXTRACK</span>
+    </div>
+    <div class="auth-buttons">
+        <a href="app.html" class="sign-in">My Account</a>
+        <a href="index.html" class="sign-up" onclick="try{localStorage.removeItem('nextrack-user')}catch(e){}">Log out</a>
+    </div>
+</header>
+
+<section class="page-head">
+    <div class="eyebrow">Planning &amp; Progress</div>
+    <h1>Project Timeline &amp; Real-Time Progress</h1>
+    <p>A Primavera-style schedule of all <b>25 construction activities</b>, from site handover to final handover. Set your project start date, then click any activity to update its <b>% complete and actual dates</b>. The Gantt chart re-schedules automatically and shows the <b>critical path</b>, the <b>baseline vs forecast</b> and any delay.</p>
+</section>
+
+<main class="pt-wrap">
+<div class="pt" id="pt-app">
+
+  <div class="pt-tabs" role="tablist" aria-label="Project part">
+    <button type="button" class="pt-tab" role="tab" data-part="1" id="pt-tab-1">
+      <span class="pt-tab-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01M15 10h.01"/></svg></span>
+      <span class="pt-tab-tx"><small>Part 1</small><b>Grey Structure</b><span id="pt-tab-d-1"></span></span>
+      <span class="pt-tab-pct"><b id="pt-tab-p-1">0%</b><span>done</span><div class="pt-tab-go">View details ›</div></span>
+    </button>
+    <button type="button" class="pt-tab" role="tab" data-part="2" id="pt-tab-2">
+      <span class="pt-tab-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h12v5H4z"/><path d="M16 6h3v5h-8v3"/><path d="M10 14h2v7h-2z"/></svg></span>
+      <span class="pt-tab-tx"><small>Part 2</small><b>Finishing</b><span id="pt-tab-d-2"></span></span>
+      <span class="pt-tab-pct"><b id="pt-tab-p-2">0%</b><span>done</span><div class="pt-tab-go">View details ›</div></span>
+    </button>
+  </div>
+
+  <div class="pt-controls">
+    <div class="pt-kpi"><small>Project start</small><input type="date" id="pt-start"></div>
+    <div class="pt-kpi"><small>Data date (status as of)</small><input type="date" id="pt-dd"></div>
+    <div class="pt-kpi"><small>Baseline finish</small><b id="pt-k-bf">–</b><div class="sub" id="pt-k-bdur"></div></div>
+    <div class="pt-kpi"><small>Forecast finish</small><b id="pt-k-ff">–</b><div class="sub" id="pt-k-fdur"></div></div>
+    <div class="pt-kpi"><small>Schedule variance</small><b id="pt-k-var">–</b><div class="sub" id="pt-k-vars"></div></div>
+    <div class="pt-kpi"><small>Actual vs planned</small><b id="pt-k-pct">–</b>
+      <div class="pt-pbar" title="Green = actual, red line = planned as of data date"><i id="pt-k-bar"></i><i class="plan" id="pt-k-plan"></i></div></div>
+  </div>
+
+  <div class="pt-toolbar">
+    <button class="pt-btn ghost" type="button" id="pt-expand">Collapse all</button>
+    <span class="pt-spacer"></span>
+    <button class="pt-btn ghost" type="button" id="pt-reset">Reset schedule</button>
+    <button class="pt-btn ghost" type="button" id="pt-baseline">Update baseline</button>
+    <button class="pt-btn" type="button" onclick="window.print()">Print</button>
+  </div>
+
+  <div class="pt-legend">
+    <span><i style="background:#C9C2B5"></i>Planned (baseline) &ndash; top line</span>
+    <span><i style="background:linear-gradient(90deg,#0D5C4D 50%,#7FB8A8 50%)"></i>Actual / forecast &ndash; bottom line (dark = work done)</span>
+    <span><i style="background:linear-gradient(90deg,#C0392B 50%,#E8A29A 50%)"></i>Critical path</span>
+    <span><i style="background:#6B8F86"></i>Completed</span>
+    <span><i style="background:#1A1A1A;height:6px"></i>Phase summary</span>
+    <span><i style="border-left:2px dashed #C0392B;width:2px;height:12px;border-radius:0"></i>Data date</span>
+  </div>
+  <p class="pt-note" id="pt-note"></p>
+
+  <section class="pt-part" id="pt-part-1">
+    <div class="pt-part-head">
+      <div><span class="pt-part-no">Part 1</span><h2>Grey Structure</h2><p class="pt-part-sub">Drawings, foundation, RCC frame, masonry, concealed MEP, plaster &amp; waterproofing</p></div>
+      <div class="pt-part-stats" id="pt-pstats-1"></div>
+    </div>
+    <div class="pt-scroll">
+      <div class="pt-table">
+        <div class="pt-left">
+          <div class="pt-head"><div class="pt-cols">
+            <div>ID</div><div class="l">Activity name</div><div>Dur (days)</div><div class="c-st">Start<br>Plan / Actual</div><div class="c-fi">Finish<br>Plan / Actual</div>
+          </div></div>
+          <div id="pt-lrows-1"></div>
+        </div>
+        <div class="pt-right" id="pt-right-1">
+          <div class="pt-head" id="pt-rhead-1"></div>
+          <div class="pt-body" id="pt-rbody-1"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pt-part" id="pt-part-2">
+    <div class="pt-part-head">
+      <div><span class="pt-part-no">Part 2</span><h2>Finishing</h2><p class="pt-part-sub">Tiling, doors &amp; windows, ceiling, paint, fixtures, external works &amp; handover</p></div>
+      <div class="pt-part-stats" id="pt-pstats-2"></div>
+    </div>
+    <div class="pt-scroll">
+      <div class="pt-table">
+        <div class="pt-left">
+          <div class="pt-head"><div class="pt-cols">
+            <div>ID</div><div class="l">Activity name</div><div>Dur (days)</div><div class="c-st">Start<br>Plan / Actual</div><div class="c-fi">Finish<br>Plan / Actual</div>
+          </div></div>
+          <div id="pt-lrows-2"></div>
+        </div>
+        <div class="pt-right" id="pt-right-2">
+          <div class="pt-head" id="pt-rhead-2"></div>
+          <div class="pt-body" id="pt-rbody-2"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- activity edit panel -->
+  <div class="pt-overlay" id="pt-overlay" hidden>
+    <div class="pt-modal" role="dialog" aria-modal="true" aria-labelledby="pt-m-title">
+      <button class="pt-close" type="button" id="pt-m-close" aria-label="Close">×</button>
+      <h3 id="pt-m-title"></h3>
+      <p class="ph" id="pt-m-phase"></p>
+      <div class="pt-form">
+        <div class="pt-f"><label for="pt-m-dur">Original duration (days)</label><input type="number" min="1" id="pt-m-dur"></div>
+        <div class="pt-f"><label for="pt-m-pred">Predecessors</label><input id="pt-m-pred" placeholder="e.g. 5, 2"><div class="hint">IDs, comma separated. Lag: 14+3 or 14-10</div></div>
+        <div class="pt-f full"><label for="pt-m-pct">% complete</label>
+          <div class="pt-range"><input type="range" min="0" max="100" step="5" id="pt-m-pctr"><input type="number" min="0" max="100" id="pt-m-pct"></div></div>
+        <div class="pt-f"><label for="pt-m-as">Actual start</label><input type="date" id="pt-m-as"></div>
+        <div class="pt-f"><label for="pt-m-af">Actual finish</label><input type="date" id="pt-m-af"></div>
+        <div class="pt-f full"><label for="pt-m-rem">Remarks</label><input id="pt-m-rem" placeholder="Reason for delay, notes…"></div>
+      </div>
+      <div class="pt-info" id="pt-m-info"></div>
+      <div class="pt-modal-actions">
+        <button class="pt-btn ghost" type="button" id="pt-m-startnow">Started on data date</button>
+        <button class="pt-btn ghost" type="button" id="pt-m-donenow">Completed on data date</button>
+        <button class="pt-btn ghost" type="button" id="pt-m-clear">Clear progress</button>
+        <a class="pt-btn ghost" id="pt-m-qc" href="#">Open quality checklist</a>
+        <span class="pt-spacer"></span>
+        <button class="pt-btn" type="button" id="pt-m-done">Done</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<footer class="footer">
+    Residential Construction • AI-Powered Project Control
+</footer>
+
+<script>
+const menuBtn = document.getElementById('menuBtn');
+const sidebar = document.getElementById('sidebar');
+menuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    menuBtn.classList.toggle('open');
+});
+</script>
+
+<script>
+(function () {
+  /* ====== ACTIVITIES (same as the Quality Checklists). Edit default durations / predecessors here ======
+     part = 1 Grey Structure, 2 Finishing
+     dur  = original duration in calendar days
+     pred = predecessor IDs (finish-to-start). "14-10" = start 10 days before 14 finishes, "14+3" = 3 days after */
+  var ACTS = [
+    {"part": 1, "phase": "Pre-Construction", "title": "SITE HANDOVER & MOBILIZATION", "items": 7, "dur": 7, "pred": ""},
+    {"part": 1, "phase": "Pre-Construction", "title": "RECEIVING OF STRUCTURAL & ARCHITECTURAL DRAWINGS", "items": 5, "dur": 5, "pred": ""},
+    {"part": 1, "phase": "Pre-Construction", "title": "RECEIVING OF MEP DRAWINGS", "items": 5, "dur": 10, "pred": "2"},
+    {"part": 1, "phase": "Pre-Construction", "title": "RECEIVING OF FINISHING BOOK", "items": 4, "dur": 20, "pred": "3"},
+    {"part": 1, "phase": "Substructure", "title": "LAYOUT & SETTING OUT", "items": 5, "dur": 3, "pred": "1, 2"},
+    {"part": 1, "phase": "Substructure", "title": "EXCAVATION", "items": 6, "dur": 10, "pred": "5"},
+    {"part": 1, "phase": "Substructure", "title": "ANTI-TERMITE, SOLING & PCC (BLINDING)", "items": 5, "dur": 5, "pred": "6"},
+    {"part": 1, "phase": "Substructure", "title": "FOUNDATION STEEL & SHUTTERING (PRE-POUR)", "items": 7, "dur": 10, "pred": "7"},
+    {"part": 1, "phase": "Substructure", "title": "FOUNDATION CONCRETING & CURING", "items": 5, "dur": 10, "pred": "8"},
+    {"part": 1, "phase": "Substructure", "title": "PLINTH BEAM, DPC & BACKFILLING", "items": 5, "dur": 12, "pred": "9"},
+    {"part": 1, "phase": "Superstructure", "title": "COLUMNS (STEEL, SHUTTERING & POUR)", "items": 6, "dur": 14, "pred": "10"},
+    {"part": 1, "phase": "Superstructure", "title": "BEAM & SLAB SHUTTERING / REINFORCEMENT (PRE-POUR)", "items": 8, "dur": 18, "pred": "11"},
+    {"part": 1, "phase": "Superstructure", "title": "SLAB CONCRETING & CURING", "items": 6, "dur": 14, "pred": "12"},
+    {"part": 1, "phase": "Superstructure", "title": "BRICK / BLOCK MASONRY", "items": 7, "dur": 35, "pred": "13"},
+    {"part": 1, "phase": "MEP Rough-In", "title": "ELECTRICAL CONDUITING (CONCEALED)", "items": 6, "dur": 15, "pred": "14-10, 3"},
+    {"part": 1, "phase": "MEP Rough-In", "title": "PLUMBING & DRAINAGE (CONCEALED) + PRESSURE TEST", "items": 7, "dur": 15, "pred": "14-10, 3"},
+    {"part": 1, "phase": "Plaster & Waterproofing", "title": "WATERPROOFING (ROOF & WET AREAS)", "items": 6, "dur": 10, "pred": "16, 13"},
+    {"part": 1, "phase": "Plaster & Waterproofing", "title": "PLASTER (INTERNAL & EXTERNAL)", "items": 6, "dur": 36, "pred": "15, 16"},
+    {"part": 2, "phase": "Finishing", "title": "FLOORING & WALL TILING", "items": 6, "dur": 70, "pred": "18, 17, 4"},
+    {"part": 2, "phase": "Finishing", "title": "DOORS & WINDOWS", "items": 5, "dur": 45, "pred": "19-45"},
+    {"part": 2, "phase": "Finishing", "title": "FALSE CEILING", "items": 5, "dur": 45, "pred": "18"},
+    {"part": 2, "phase": "Finishing", "title": "PAINT & POLISH", "items": 5, "dur": 70, "pred": "19, 21"},
+    {"part": 2, "phase": "Finishing", "title": "SANITARY & ELECTRICAL FIXTURES INSTALLATION", "items": 6, "dur": 30, "pred": "22-15, 20"},
+    {"part": 2, "phase": "Finishing", "title": "EXTERNAL WORKS & BOUNDARY WALL", "items": 5, "dur": 60, "pred": "18+30"},
+    {"part": 2, "phase": "Handover", "title": "FINAL SNAGGING & HANDOVER", "items": 7, "dur": 20, "pred": "22, 23, 24"}
+  ];
+  /* ======================================================================================================= */
+
+  var KEY = "nvhomes-project-timeline-v2";
+  var QC_KEY = "nvhomes-quality-checklists-v1";
+  var N = ACTS.length, MS = N; // index N = "Project Completion" milestone
+  var $ = function (id) { return document.getElementById(id); };
+  var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  /* ---------- dates as whole day numbers ---------- */
+  function toDay(iso) { if (!iso) return null; var p = iso.split("-"); if (p.length < 3) return null; var t = Date.UTC(+p[0], +p[1] - 1, +p[2]); return isNaN(t) ? null : Math.round(t / 864e5); }
+  function toIso(d) { var x = new Date(d * 864e5); return x.getUTCFullYear() + "-" + pad(x.getUTCMonth() + 1) + "-" + pad(x.getUTCDate()); }
+  function fmt(d) { if (d == null) return "–"; var x = new Date(d * 864e5); return pad(x.getUTCDate()) + "-" + MON[x.getUTCMonth()] + "-" + String(x.getUTCFullYear()).slice(2); }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function todayDay() { var n = new Date(); return Math.round(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()) / 864e5); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  /* ---------- state ---------- */
+  function fresh() {
+    var t = todayDay();
+    var s = { start: toIso(t), dd: toIso(t), zoom: "week", closed: {}, acts: {}, baseline: null };
+    ACTS.forEach(function (a, i) { s.acts[i] = { dur: a.dur, pred: a.pred, pct: 0, as: "", af: "", rem: "" }; });
+    return s;
+  }
+  var state = (function () {
+    try {
+      var s = JSON.parse(localStorage.getItem(KEY));
+      if (s && s.acts) { ACTS.forEach(function (a, i) { if (!s.acts[i]) s.acts[i] = { dur: a.dur, pred: a.pred, pct: 0, as: "", af: "", rem: "" }; }); s.closed = s.closed || {}; return s; }
+    } catch (e) {}
+    return fresh();
+  })();
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function parsePred(str, self) {
+    var out = [];
+    String(str || "").split(",").forEach(function (tok) {
+      var m = /^\s*(\d+)\s*([+-]\s*\d+)?\s*$/.exec(tok);
+      if (!m) return;
+      var id = parseInt(m[1], 10) - 1;
+      if (id < 0 || id >= N || id === self) return;
+      out.push({ id: id, lag: m[2] ? parseInt(m[2].replace(/\s/g, ""), 10) : 0 });
+    });
+    return out;
+  }
+  function anyProgress() { for (var i = 0; i < N; i++) if (state.acts[i].as || +state.acts[i].pct > 0) return true; return false; }
+
+  /* ---------- scheduling (forward + backward pass, like P6 retained logic) ---------- */
+  var S; // computed schedule
+  // pure = the clean plan from the project start (used for the baseline): no actuals, no data date
+  function compute(pure) {
+    var start = toDay(state.start) || todayDay(), dd = pure ? -1e9 : (toDay(state.dd) || todayDay());
+    var res = [], visiting = {};
+    function calc(i) {
+      if (res[i]) return res[i];
+      if (visiting[i]) return null; // loop guard for circular predecessors
+      visiting[i] = true;
+      var a = state.acts[i], dur = Math.max(1, parseInt(a.dur, 10) || 1), preds = parsePred(a.pred, i);
+      var es = start;
+      preds.forEach(function (p) { var r = calc(p.id); if (r) es = Math.max(es, r.f + 1 + p.lag); });
+      var as = pure ? null : toDay(a.as), af = pure ? null : toDay(a.af), pct = Math.min(100, Math.max(0, +a.pct || 0)), s, f, st;
+      if (as != null && af != null) { s = as; f = Math.max(as, af); pct = 100; st = "done"; }
+      else if (as != null) {
+        var rem = Math.ceil(dur * (100 - pct) / 100);          // remaining duration
+        s = as; f = rem > 0 ? Math.max(as, dd + rem - 1) : Math.max(as, dd); st = "prog";
+      } else { s = Math.max(es, dd); f = s + dur - 1; pct = 0; st = "not"; } // not started: can't start before the data date
+      res[i] = { s: s, f: f, dur: dur, pct: pct, st: st, preds: preds };
+      visiting[i] = false;
+      return res[i];
+    }
+    for (var i = 0; i < N; i++) calc(i);
+    var pf = start; for (i = 0; i < N; i++) pf = Math.max(pf, res[i].f);
+    // backward pass -> total float / critical path
+    var succ = {}; for (i = 0; i < N; i++) res[i].preds.forEach(function (p) { (succ[p.id] = succ[p.id] || []).push({ id: i, lag: p.lag }); });
+    var lf = [];
+    function late(i) {
+      if (lf[i] != null) return lf[i];
+      lf[i] = pf;
+      var v = pf;
+      (succ[i] || []).forEach(function (sx) { var r = res[sx.id]; v = Math.min(v, late(sx.id) - (r.f - r.s) - 1 - sx.lag); });
+      lf[i] = v; return v;
+    }
+    for (i = 0; i < N; i++) { res[i].tf = late(i) - res[i].f; res[i].crit = res[i].st !== "done" && res[i].tf <= 0; }
+    var allDone = res.slice(0, N).every(function (r) { return r.st === "done"; });
+    res[MS] = { s: pf, f: pf, dur: 0, pct: allDone ? 100 : 0, st: allDone ? "done" : "not", ms: true, crit: !allDone, tf: 0 };
+    return { res: res, start: start, dd: dd, pf: pf };
+  }
+  function schedule() {
+    S = compute(false);
+    // baseline follows the clean plan until work starts, then stays frozen until "Update baseline"
+    if (!state.baseline || state.baseline.length !== N + 1 || !anyProgress()) setBaseline(false, true);
+    return S;
+  }
+  function setBaseline(persist, pure) {
+    var src = pure ? compute(true) : S;
+    state.baseline = src.res.map(function (r) { return { s: r.s, f: r.f }; });
+    if (persist !== false) save();
+  }
+
+  /* ---------- QC link (reads the Quality Checklists page data, same browser) ---------- */
+  function qcStatus(i) {
+    try {
+      var q = JSON.parse(localStorage.getItem(QC_KEY)); if (!q || !q.acts || !q.acts[i]) return "q-not";
+      var v = q.acts[i].v || {}, n = 0, done = 0, na = 0, total = (ACTS[i].items || 0);
+      Object.keys(v).forEach(function (k) { if (v[k] === "Yes") done++; else if (v[k] === "N/A") na++; });
+      if (!done && !na) return "q-not"; return done + na >= total ? "q-done" : "q-prog";
+    } catch (e) { return "q-not"; }
+  }
+  var QC_TXT = { "q-done": "Checklist completed", "q-prog": "Checklist in progress", "q-not": "Checklist not started" };
+
+  /* ---------- rendering (two parts: 1 = Grey Structure, 2 = Finishing, 6-month windows) ---------- */
+  var PARTS = [
+    { n: 1, months: 6, ms: "Grey Structure Complete" },
+    { n: 2, months: 6, ms: "Project Completion" }
+  ];
+  var phases = [];
+  ACTS.forEach(function (a) { if (phases.indexOf(a.phase) < 0) phases.push(a.phase); });
+  function partIdx(n) { var o = []; ACTS.forEach(function (a, i) { if (a.part === n) o.push(i); }); return o; }
+
+  function rows(P) {
+    var list = [], idx = partIdx(P.n);
+    phases.forEach(function (ph) {
+      var pi = idx.filter(function (i) { return ACTS[i].phase === ph; });
+      if (!pi.length) return;
+      list.push({ type: "sum", phase: ph, idx: pi });
+      if (!state.closed[ph]) pi.forEach(function (i) { list.push({ type: "act", i: i }); });
+    });
+    list.push({ type: "ms" });
+    return list;
+  }
+  function sumInfo(idx) {
+    var s = Infinity, f = -Infinity, w = 0, d = 0, bs = Infinity, bf = -Infinity, done = true;
+    idx.forEach(function (i) { var r = S.res[i], b = state.baseline[i]; s = Math.min(s, r.s); f = Math.max(f, r.f); w += r.dur * r.pct; d += r.dur; bs = Math.min(bs, b.s); bf = Math.max(bf, b.f); if (r.st !== "done") done = false; });
+    return { s: s, f: f, pct: d ? w / d : 0, bs: bs, bf: bf, done: done };
+  }
+  function monthStart(day) { var x = new Date(day * 864e5); return Math.round(Date.UTC(x.getUTCFullYear(), x.getUTCMonth(), 1) / 864e5); }
+  function addMonths(day, k) { var x = new Date(day * 864e5); return Math.round(Date.UTC(x.getUTCFullYear(), x.getUTCMonth() + k, x.getUTCDate()) / 864e5); }
+
+  function renderPart(P) {
+    var res = S.res, list = rows(P), all = sumInfo(partIdx(P.n)), n = P.n;
+    // window: starts when the part starts and shows 6 months (longer only if the part runs late)
+    var lo = Math.min(all.bs, all.s);
+    var hi = addMonths(lo, P.months) - 1, months = P.months;
+    while (hi < Math.max(all.f, all.bf) + 2) { months++; hi = addMonths(lo, months) - 1; }
+    $("pt-lrows-" + n).innerHTML = "";
+    var W = Math.max(120, $("pt-right-" + n).clientWidth);
+    var ppd = W / (hi - lo + 1);
+    var zoom = ppd >= 16 ? "day" : ppd >= 3.2 ? "week" : "month";
+    function X(day) { return Math.round((day - lo) * ppd); }
+    function dcell(cls, plan, act) { return '<div class="dt ' + cls + '"><span class="pl">' + plan + '</span><span class="ac">' + act + '</span></div>'; }
+    function label(txt, s, f, cls) {
+      var w = txt.length * 5.6 + 8, xr = X(f + 1) + 6, xl = X(s) - 6;
+      if (xr + w <= W) return '<div class="pt-lbl ' + cls + '" style="left:' + xr + 'px">' + txt + '</div>';
+      if (xl - w >= 0) return '<div class="pt-lbl ' + cls + '" style="right:' + (W - xl) + 'px">' + txt + '</div>';
+      return "";
+    }
+
+    var L = "", R = "";
+    list.forEach(function (row) {
+      if (row.type === "sum") {
+        var si = sumInfo(row.idx);
+        L += '<div class="pt-row pt-cols sum' + (state.closed[row.phase] ? " closed" : "") + '" data-ph="' + esc(row.phase) + '">' +
+          '<div></div><div class="l nm" title="' + esc(row.phase) + '">' + esc(row.phase) + '</div><div>' + (si.f - si.s + 1) + '</div>' +
+          dcell("c-st", fmt(si.bs), fmt(si.s)) + dcell("c-fi", fmt(si.bf), fmt(si.f)) + '</div>';
+        R += '<div class="pt-row pt-grow sum"><div class="pt-lane"></div>' +
+          '<div class="pt-sumbl" style="left:' + X(si.bs) + 'px;width:' + Math.max(2, X(si.bf + 1) - X(si.bs)) + 'px" title="Planned ' + fmt(si.bs) + ' – ' + fmt(si.bf) + '"></div>' +
+          '<div class="pt-sumbar" style="left:' + X(si.s) + 'px;width:' + Math.max(2, X(si.f + 1) - X(si.s)) + 'px" title="Actual / forecast ' + fmt(si.s) + ' – ' + fmt(si.f) + '"></div></div>';
+      } else if (row.type === "act") {
+        var i = row.i, r = res[i], b = state.baseline[i], nmT = titleCase(ACTS[i].title);
+        L += '<div class="pt-row pt-cols act" data-i="' + i + '">' +
+          '<div>' + (i + 1) + '</div><div class="l nm" title="' + esc(nmT) + '">' + (r.crit ? '<span class="pt-crit-dot" title="Critical">●</span>' : "") + esc(nmT) + '</div>' +
+          '<div>' + r.dur + '</div>' +
+          dcell("c-st", fmt(b.s), fmt(r.s) + (r.st !== "not" ? " A" : "")) +
+          dcell("c-fi", fmt(b.f), fmt(r.f) + (r.st === "done" ? " A" : "")) + '</div>';
+        var cls = r.st === "done" ? "done" : r.crit ? "crit" : "";
+        R += '<div class="pt-row pt-grow act" data-i="' + i + '"><div class="pt-lane"></div>' +
+          '<div class="pt-bl" style="left:' + X(b.s) + 'px;width:' + Math.max(2, X(b.f + 1) - X(b.s)) + 'px" title="Planned: ' + fmt(b.s) + ' – ' + fmt(b.f) + '"></div>' +
+          '<div class="pt-bar ' + cls + '" style="left:' + X(r.s) + 'px;width:' + Math.max(3, X(r.f + 1) - X(r.s)) + 'px" title="' + esc(nmT) + ' (actual / forecast): ' + fmt(r.s) + ' – ' + fmt(r.f) + ', ' + Math.round(r.pct) + '% done"><i style="width:' + r.pct + '%"></i></div>' +
+          label(esc(nmT), r.s, r.f, "") + '</div>';
+      } else {
+        var mf = all.f, mbf = all.bf, mdone = all.done;
+        L += '<div class="pt-row pt-cols ms">' +
+          '<div></div><div class="l nm">◆ ' + P.ms + '</div><div>0</div>' +
+          dcell("c-st", "", "") + dcell("c-fi", fmt(mbf), fmt(mf) + (mdone ? " A" : "")) + '</div>';
+        R += '<div class="pt-row pt-grow ms"><div class="pt-lane"></div>' +
+          '<div class="pt-ms pl" style="left:' + X(mbf + 1) + 'px" title="Planned ' + fmt(mbf) + '"></div>' +
+          '<div class="pt-ms ' + (mdone ? "done" : "") + '" style="left:' + X(mf + 1) + 'px" title="Forecast ' + fmt(mf) + '"></div>' +
+          label("Plan " + fmt(mbf), mbf, mbf, "pl") + label("Forecast " + fmt(mf), mf, mf, "") + '</div>';
+      }
+    });
+    $("pt-lrows-" + n).innerHTML = L;
+
+    // ---- timescale + gridlines ----
+    var top = "", bot = "", grid = "", d;
+    if (zoom === "month") {
+      for (d = lo; d <= hi; ) {
+        var dt = new Date(d * 864e5), y = dt.getUTCFullYear(), mo = dt.getUTCMonth();
+        var next = Math.round(Date.UTC(y, mo + 1, 1) / 864e5);
+        bot += '<div class="pt-tick" style="left:' + X(d) + 'px;width:' + (X(next) - X(d)) + 'px">' + (X(next) - X(d) >= 22 ? MON[mo] : "") + '</div>';
+        grid += '<div class="pt-gridline major" style="left:' + X(d) + 'px"></div>';
+        if (mo === 0 || d === lo) { var ny = Math.round(Date.UTC(y + 1, 0, 1) / 864e5); top += '<div class="pt-tick" style="left:' + X(d) + 'px;width:' + (X(Math.min(ny, hi + 1)) - X(d)) + 'px">' + y + '</div>'; }
+        d = next;
+      }
+    } else {
+      for (d = lo; d <= hi; d++) {
+        var tt = new Date(d * 864e5);
+        if (tt.getUTCDate() === 1 || d === lo) {
+          var nm = Math.round(Date.UTC(tt.getUTCFullYear(), tt.getUTCMonth() + 1, 1) / 864e5);
+          var mw = X(Math.min(nm, hi + 1)) - X(d);
+          top += '<div class="pt-tick" style="left:' + X(d) + 'px;width:' + mw + 'px">' + (mw >= 58 ? MON[tt.getUTCMonth()] + " " + tt.getUTCFullYear() : mw >= 26 ? MON[tt.getUTCMonth()] : "") + '</div>';
+          if (d !== lo) grid += '<div class="pt-gridline major" style="left:' + X(d) + 'px"></div>';
+        }
+        var monday = tt.getUTCDay() === 1;
+        if (zoom === "day") {
+          bot += '<div class="pt-tick" style="left:' + X(d) + 'px;width:' + ppd + 'px;padding-left:0;text-align:center">' + tt.getUTCDate() + '</div>';
+          if (tt.getUTCDate() !== 1) grid += '<div class="pt-gridline" style="left:' + X(d) + 'px"></div>';
+        } else if (monday) {
+          bot += '<div class="pt-tick" style="left:' + X(d) + 'px;width:' + Math.round(7 * ppd) + 'px">' + (7 * ppd >= 22 ? pad(tt.getUTCDate()) : "") + '</div>';
+          if (tt.getUTCDate() !== 1) grid += '<div class="pt-gridline" style="left:' + X(d) + 'px"></div>';
+        }
+      }
+    }
+    $("pt-rhead-" + n).innerHTML = '<div class="pt-scale top">' + top + '</div><div class="pt-scale bot">' + bot + '</div>';
+    var ddLine = (S.dd >= lo && S.dd <= hi) ? '<div class="pt-dd" style="left:' + X(S.dd) + 'px"><span>Data date ' + fmt(S.dd) + '</span></div>' : "";
+    $("pt-rbody-" + n).innerHTML = grid + ddLine + R;
+
+    // ---- part summary pills ----
+    var v = all.f - all.bf;
+    $("pt-pstats-" + n).innerHTML =
+      '<div class="pt-pill">Timeline window<b>' + fmt(lo) + ' – ' + fmt(hi) + ' (' + months + ' months)</b></div>' +
+      '<div class="pt-pill">Planned<b>' + fmt(all.bs) + ' – ' + fmt(all.bf) + '</b></div>' +
+      '<div class="pt-pill">Forecast finish<b>' + fmt(all.f) + '</b></div>' +
+      '<div class="pt-pill">Variance<b class="' + (v > 0 ? "bad" : v < 0 ? "good" : "") + '">' + (v > 0 ? "+" : "") + v + ' days</b></div>' +
+      '<div class="pt-pill">Done<b>' + Math.round(all.pct) + '%</b></div>';
+  }
+
+  function render() {
+    schedule();
+    var res = S.res;
+    var active = state.part === 2 ? 2 : 1;
+    PARTS.forEach(function (P) {
+      var on = P.n === active, si = sumInfo(partIdx(P.n));
+      $("pt-part-" + P.n).hidden = !on;
+      var tab = $("pt-tab-" + P.n); tab.classList.toggle("on", on); tab.setAttribute("aria-selected", on ? "true" : "false");
+      $("pt-tab-d-" + P.n).textContent = fmt(si.bs) + " – " + fmt(si.bf) + (si.f > si.bf ? "  ·  +" + (si.f - si.bf) + " days late" : "");
+      $("pt-tab-p-" + P.n).textContent = Math.round(si.pct) + "%";
+      if (on) renderPart(P);
+    });
+
+    // ---- KPIs ----
+    var bf = state.baseline[MS].f, ff = S.pf, varD = ff - bf;
+    $("pt-k-bf").textContent = fmt(bf); $("pt-k-bdur").textContent = (bf - state.baseline.reduce(function (m, b) { return Math.min(m, b.s); }, Infinity) + 1) + " days";
+    $("pt-k-ff").textContent = fmt(ff); $("pt-k-fdur").textContent = (ff - S.start + 1) + " days total";
+    var kv = $("pt-k-var"); kv.textContent = (varD > 0 ? "+" : "") + varD + " days"; kv.className = varD > 0 ? "bad" : varD < 0 ? "good" : "";
+    $("pt-k-vars").textContent = varD > 0 ? "Behind baseline" : varD < 0 ? "Ahead of baseline" : "On schedule";
+    var tw = 0, aw = 0, pw = 0;
+    for (var k = 0; k < N; k++) {
+      var rr = res[k], bb = state.baseline[k]; tw += rr.dur; aw += rr.dur * rr.pct / 100;
+      pw += rr.dur * Math.min(1, Math.max(0, (S.dd - bb.s + 1) / (bb.f - bb.s + 1)));
+    }
+    var ap = tw ? aw / tw * 100 : 0, pp = tw ? pw / tw * 100 : 0;
+    $("pt-k-pct").innerHTML = Math.round(ap) + '% <span style="font-size:12px;color:#6B6B6B;font-weight:600">/ ' + Math.round(pp) + '% planned</span>';
+    $("pt-k-bar").style.width = ap + "%"; $("pt-k-plan").style.width = pp + "%";
+
+    $("pt-note").textContent = anyProgress()
+      ? "Baseline is frozen since work has started. Press “Update baseline” only if the plan is officially revised. Durations are in calendar days."
+      : "Planning mode: the baseline follows your plan until the first activity starts. Click an activity to change its duration, predecessors or progress. Durations are in calendar days.";
+
+    $("pt-expand").textContent = phases.every(function (p) { return state.closed[p]; }) ? "Expand all" : "Collapse all";
+    $("pt-start").value = state.start; $("pt-dd").value = state.dd;
+    if (openI != null) fillInfo(openI);
+  }
+  function titleCase(s) {
+    return s.toLowerCase().replace(/(^|[\s(\/&+-])([a-z])/g, function (m, a, b) { return a + b.toUpperCase(); })
+      .replace(/\b(Mep|Pcc|Dpc)\b/g, function (m) { return m.toUpperCase(); }).replace(/\b(And|Of|In|To|By|As)\b/g, function (m) { return m.toLowerCase(); });
+  }
+  function scrollToDD() {} // timeline always fits the width, nothing to scroll
+
+  /* ---------- edit panel ---------- */
+  var openI = null;
+  function openEdit(i) {
+    openI = i; var a = state.acts[i];
+    $("pt-m-title").textContent = (i + 1) + ". " + titleCase(ACTS[i].title);
+    $("pt-m-phase").textContent = ACTS[i].phase + " phase";
+    $("pt-m-dur").value = a.dur; $("pt-m-pred").value = a.pred; $("pt-m-pct").value = a.pct; $("pt-m-pctr").value = a.pct;
+    $("pt-m-as").value = a.as; $("pt-m-af").value = a.af; $("pt-m-rem").value = a.rem || "";
+    $("pt-m-qc").href = "quality-checklist.html#cl-" + pad(i + 1);
+    fillInfo(i);
+    $("pt-overlay").hidden = false; $("pt-m-dur").focus();
+  }
+  function closeEdit() { $("pt-overlay").hidden = true; openI = null; }
+  function fillInfo(i) {
+    var r = S.res[i], b = state.baseline[i], v = r.f - b.f, qc = qcStatus(i);
+    var st = r.st === "done" ? "Completed" : r.st === "prog" ? "In progress" : "Not started";
+    $("pt-m-info").innerHTML =
+      '<div><span>Baseline start – finish</span><b>' + fmt(b.s) + ' – ' + fmt(b.f) + '</b></div>' +
+      '<div><span>Forecast start – finish</span><b>' + fmt(r.s) + ' – ' + fmt(r.f) + '</b></div>' +
+      '<div><span>Status</span><b>' + st + '</b></div>' +
+      '<div><span>Finish variance</span><b style="color:' + (v > 0 ? "#C0392B" : v < 0 ? "#1e7b3c" : "inherit") + '">' + (v > 0 ? "+" : "") + v + ' days</b></div>' +
+      '<div><span>Total float</span><b style="color:' + (r.crit ? "#C0392B" : "inherit") + '">' + (r.st === "done" ? "–" : r.tf + " days" + (r.crit ? " (critical)" : "")) + '</b></div>' +
+      '<div><span>Quality checklist</span><b><span class="pt-qc ' + qc + '"></span> ' + QC_TXT[qc] + '</b></div>';
+  }
+  function upd(field, val) {
+    var a = state.acts[openI];
+    a[field] = val;
+    if (field === "pct") {
+      a.pct = Math.min(100, Math.max(0, parseInt(val, 10) || 0));
+      if (a.pct > 0 && !a.as) a.as = state.dd;
+      if (a.pct === 100 && !a.af) a.af = state.dd;
+      if (a.pct < 100) a.af = "";
+      $("pt-m-pct").value = a.pct; $("pt-m-pctr").value = a.pct; $("pt-m-as").value = a.as; $("pt-m-af").value = a.af;
+    }
+    if (field === "af" && val) { a.pct = 100; if (!a.as) a.as = val; $("pt-m-pct").value = 100; $("pt-m-pctr").value = 100; $("pt-m-as").value = a.as; }
+    if (field === "af" && !val && +a.pct === 100) { a.pct = 90; $("pt-m-pct").value = 90; $("pt-m-pctr").value = 90; }
+    if (field === "as" && !val) { a.af = ""; a.pct = 0; $("pt-m-af").value = ""; $("pt-m-pct").value = 0; $("pt-m-pctr").value = 0; }
+    if (field === "dur") a.dur = Math.max(1, parseInt(val, 10) || 1);
+    save(); render();
+  }
+  $("pt-m-dur").addEventListener("change", function () { upd("dur", this.value); });
+  $("pt-m-pred").addEventListener("change", function () { upd("pred", this.value); });
+  $("pt-m-pct").addEventListener("change", function () { upd("pct", this.value); });
+  $("pt-m-pctr").addEventListener("input", function () { upd("pct", this.value); });
+  $("pt-m-as").addEventListener("change", function () { upd("as", this.value); });
+  $("pt-m-af").addEventListener("change", function () { upd("af", this.value); });
+  $("pt-m-rem").addEventListener("input", function () { state.acts[openI].rem = this.value; save(); });
+  $("pt-m-startnow").addEventListener("click", function () { if (!state.acts[openI].as) { $("pt-m-as").value = state.dd; upd("as", state.dd); } });
+  $("pt-m-donenow").addEventListener("click", function () { $("pt-m-af").value = state.dd; upd("af", state.dd); });
+  $("pt-m-clear").addEventListener("click", function () { $("pt-m-as").value = ""; upd("as", ""); });
+  $("pt-m-close").addEventListener("click", closeEdit);
+  $("pt-m-done").addEventListener("click", closeEdit);
+  $("pt-overlay").addEventListener("click", function (e) { if (e.target === this) closeEdit(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && openI != null) closeEdit(); });
+
+  /* ---------- toolbar + grid events ---------- */
+  $("pt-app").addEventListener("click", function (e) {
+    var sr = e.target.closest(".pt-row.sum[data-ph]"); if (sr) { var ph = sr.dataset.ph; state.closed[ph] = !state.closed[ph]; save(); render(); return; }
+    var ar = e.target.closest(".pt-row.act[data-i]"); if (ar) openEdit(+ar.dataset.i);
+  });
+  // highlight matching row in both panes
+  $("pt-app").addEventListener("mouseover", function (e) {
+    var r = e.target.closest(".pt-row.act"); document.querySelectorAll(".pt-row.hl").forEach(function (x) { x.classList.remove("hl"); });
+    if (r) document.querySelectorAll('.pt-row.act[data-i="' + r.dataset.i + '"]').forEach(function (x) { x.classList.add("hl"); });
+  });
+  $("pt-start").addEventListener("change", function () { if (this.value) { state.start = this.value; save(); render(); scrollToDD(true); } });
+  $("pt-dd").addEventListener("change", function () { if (this.value) { state.dd = this.value; save(); render(); scrollToDD(true); } });
+  $("pt-expand").addEventListener("click", function () {
+    var allClosed = phases.every(function (p) { return state.closed[p]; });
+    phases.forEach(function (p) { state.closed[p] = !allClosed; }); save(); render();
+  });
+  $("pt-baseline").addEventListener("click", function () {
+    if (confirm("Replace the baseline with the current forecast dates? Use this only when the plan is officially revised.")) { setBaseline(true, false); render(); }
+  });
+  $("pt-reset").addEventListener("click", function () {
+    if (confirm("Reset all durations, predecessors, progress and the baseline to the defaults?")) { state = fresh(); save(); render(); scrollToDD(false); }
+  });
+
+  // part buttons: Grey Structure / Finishing (also reachable as #grey and #finishing links)
+  function selectPart(n, scroll) {
+    state.part = n; save(); render();
+    try { history.replaceState(null, "", n === 2 ? "#finishing" : "#grey"); } catch (e) {}
+    if (scroll) { var el = $("pt-part-" + n); window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 16, behavior: "smooth" }); }
+  }
+  document.querySelectorAll(".pt-tab").forEach(function (b) { b.addEventListener("click", function () { selectPart(+b.dataset.part, true); }); });
+  if (location.hash === "#finishing") state.part = 2; else if (location.hash === "#grey") state.part = 1;
+  var rz; window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(render, 120); });
+  render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+})();
+</script>
+
+</body>
+</html>
