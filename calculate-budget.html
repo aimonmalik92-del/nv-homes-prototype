@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculate Your House Budget - NEXTRACK</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: #F7ECDF;
+    color: #1A1A1A;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ============ Hamburger + Sidebar (matches homepage) ============ */
+.menu-btn {
+    position: fixed; top: 18px; left: 20px; z-index: 300;
+    background: none; border: none; cursor: pointer;
+    display: flex; flex-direction: column; gap: 5px; padding: 8px;
+}
+.menu-btn span {
+    display: block; width: 22px; height: 2px;
+    background-color: #0D5C4D; border-radius: 2px; transition: all .3s ease;
+}
+.menu-btn.open span { background-color: #ffffff; }
+
+.sidebar {
+    width: 70px; background-color: #0D5C4D; height: 100vh;
+    position: fixed; left: -70px; top: 0;
+    display: flex; flex-direction: column; justify-content: space-between;
+    align-items: center; padding: 20px 0; z-index: 250; transition: left .3s ease;
+}
+.sidebar.open { left: 0; }
+.sidebar-logo { width:40px;height:40px;margin-top:48px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;cursor:pointer; }
+.sidebar-logo-text { width:34px;height:34px;background:#fff;color:#0D5C4D;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px; }
+.sidebar-nav { display:flex;flex-direction:column;gap:6px;align-items:center; }
+.nav-item {
+    width:44px;height:44px;border-radius:10px;border:none;background:transparent;
+    color:rgba(255,255,255,.85);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:.2s;position:relative;
+}
+.nav-item:hover { background-color: rgba(255,255,255,.15); color:#fff; }
+.nav-item.active { background-color: rgba(255,255,255,.22); color:#fff; }
+.nav-item::after {
+    content: attr(data-tooltip); position:absolute; left:56px; top:50%; transform:translateY(-50%);
+    background:#1A1A1A; color:#fff; padding:6px 12px; border-radius:6px; font-size:13px;
+    white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .2s; z-index:300;
+}
+.nav-item:hover::after { opacity:1; }
+.sidebar-bottom { margin-bottom:10px; }
+.user-avatar { width:36px;height:36px;border-radius:50%;background:#2ECC71;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px; }
+
+/* ============ Top bar ============ */
+.top-bar {
+    margin: 0 auto;
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 22px 56px;
+}
+.brand-mini { display:flex; align-items:center; gap:10px; cursor:pointer; margin-left: 44px; }
+.brand-mini .dot { width:30px;height:30px;border-radius:8px;background:#0D5C4D;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px; }
+.brand-mini span { font-weight:700; color:#0D5C4D; font-size:15px; }
+.auth-buttons { display:flex; align-items:center; gap:20px; }
+.sign-in { color:#0D5C4D; text-decoration:none; font-weight:600; font-size:15px; }
+.sign-up { background:#0D5C4D; color:#fff; text-decoration:none; font-weight:600; font-size:14px; padding:10px 22px; border-radius:8px; }
+
+/* ============ Hero ============ */
+.hero {
+    margin: 0 auto 0; padding: 34px 56px 0;
+}
+.hero-grid {
+    display:grid; grid-template-columns: 1fr 480px; gap: 64px; align-items:start;
+}
+.hero-left { padding-top: 10px; padding-bottom: 40px; text-align:left; max-width: 800px; }
+.hero h1 { font-size:42px; font-weight:700; color:#1A1A1A; margin-bottom:22px; line-height:1.15; letter-spacing:-0.5px; }
+
+.stat-row { display:flex; justify-content:flex-start; gap:44px; flex-wrap:wrap; margin-bottom: 26px; }
+.stat-row .stat b { display:block; font-size:28px; color:#0D5C4D; font-weight:700; }
+.stat-row .stat span { font-size:13px; color:#4a4a4a; }
+
+.hero p.sub { font-size:15.5px; color:#4a4a4a; margin:0 0 28px; line-height:1.75; text-align:left; }
+.hero p.sub b { color:#0D5C4D; font-weight:700; }
+.hero p.sub.small { font-size:14.5px; color:#6B6B6B; margin-bottom:0; }
+
+/* ============ Indicative rates box ============ */
+.rates-box {
+    background:#F7F5F0; border:1px solid #E5DFD2; border-radius:16px;
+    padding: 22px 24px; margin-bottom: 32px;
+}
+.rates-label { font-size:11.5px; font-weight:700; color:#6B6B6B; text-transform:uppercase; letter-spacing:.6px; margin-bottom:14px; }
+.rate-chip-row {
+    display:flex; justify-content:flex-start; gap:12px; flex-wrap:wrap;
+    margin: 0 0 14px;
+}
+.rate-chip {
+    background:#fff; border:1px solid #E5DFD2; border-radius:10px;
+    padding:12px 16px; flex:1 1 150px; min-width:150px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.rate-chip .tier { font-size:12.5px; color:#4a4a4a; font-weight:600; }
+.rate-chip .amount { font-size:15px; font-weight:700; color:#0D5C4D; white-space:nowrap; }
+.rate-note { text-align:left; font-size:12.5px; color:#9A9A9A; margin:0; }
+
+.mini-head { font-size:19px; font-weight:700; color:#1A1A1A; margin-bottom:10px; }
+
+/* ============ Calculator Card (right side of hero) ============ */
+.hero-right { position: sticky; top: 24px; }
+.calc-wrap { padding: 0; margin: 0; }
+.calc-card {
+    background:#fff; border:1.5px solid #0D5C4D; border-radius:24px;
+    padding: 40px 38px; box-shadow: 0 10px 34px rgba(13,92,77,.12);
+}
+.calc-card h2 { font-size:21px; color:#1A1A1A; margin-bottom:6px; }
+.calc-card .calc-sub { font-size:13.5px; color:#8a8a8a; margin-bottom:28px; }
+
+.calc-grid {
+    display:grid; grid-template-columns: repeat(2, 1fr); gap:18px; margin-bottom: 24px;
+}
+.field label {
+    display:block; font-size:12.5px; font-weight:600; color:#0D5C4D; margin-bottom:7px;
+}
+.field select, .field input {
+    width:100%; padding:13px 14px; border:1.5px solid #E0D8CE; border-radius:10px;
+    font-family:'DM Sans',sans-serif; font-size:14.5px; color:#1A1A1A; background:#FDFBF8;
+    outline:none; transition:.2s;
+}
+.field select:focus, .field input:focus { border-color:#0D5C4D; }
+.field .hint { font-size:11px; color:#9A9A9A; margin-top:5px; }
+
+.calc-toggle-row { display:flex; gap:22px; margin-bottom: 28px; flex-wrap:wrap; }
+.toggle-item { display:flex; align-items:center; gap:8px; font-size:13.5px; color:#4a4a4a; }
+.toggle-item input { width:16px; height:16px; accent-color:#0D5C4D; cursor:pointer; }
+
+.calc-btn {
+    width:100%; background:#0D5C4D; color:#fff; border:none; border-radius:12px;
+    padding:16px; font-size:16px; font-weight:700; cursor:pointer; transition:.2s;
+    font-family:'DM Sans',sans-serif;
+}
+.calc-btn:hover { background:#0A4D3C; }
+
+/* ============ Results ============ */
+.result-box { margin-top: 30px; display:none; }
+.result-box.show { display:block; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+.result-total {
+    background: linear-gradient(135deg, #0D5C4D, #0A4D3C); color:#fff;
+    border-radius:16px; padding: 26px 28px; margin-bottom: 20px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+}
+.result-total .label { font-size:13px; opacity:.85; }
+.result-total .value { font-size:30px; font-weight:700; margin-top:2px; }
+.result-total .range { font-size:12.5px; opacity:.8; margin-top:2px; }
+.result-total .builtup { text-align:right; font-size:13px; opacity:.9; }
+.result-total .builtup b { font-size:16px; display:block; }
+
+.floor-table { width:100%; border-collapse:collapse; font-size:13.5px; margin-bottom: 18px; }
+.floor-table th { text-align:left; color:#8a8a8a; font-weight:600; font-size:11.5px; text-transform:uppercase; padding:8px 10px; border-bottom:1.5px solid #E0D8CE; }
+.floor-table td { padding:10px; border-bottom:1px solid #F0EBE2; }
+.floor-table tr:last-child td { font-weight:700; color:#0D5C4D; border-bottom:none; }
+
+.disclaimer-box {
+    background:#FDF6EC; border:1px solid #F0E0BE; border-radius:12px;
+    padding:14px 18px; font-size:12.5px; color:#7a6636; line-height:1.6;
+}
+
+/* ============ Detailed Estimate Section (opens after Calculate) ============ */
+.estimate-wrap { padding: 0 56px 60px; }
+.estimate-card {
+    background: #102420; border-radius:28px; padding: 44px;
+}
+.estimate-grid { display:grid; grid-template-columns: 1fr 1fr; gap:44px; align-items:start; }
+
+.est-eyebrow { color:#3ddc97; font-size:12px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; margin-bottom:10px; }
+.est-total { color:#fff; font-size:46px; font-weight:700; line-height:1.1; margin-bottom:10px; }
+.est-meta { color:rgba(255,255,255,.6); font-size:13.5px; margin-bottom:26px; }
+
+.package-cards { display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-bottom:26px; }
+.pkg-card {
+    background:#17322B; border:1.5px solid #24443B; border-radius:14px;
+    padding:16px 10px; text-align:center; cursor:pointer; transition:.2s;
+}
+.pkg-card:hover { border-color:#3ddc97; transform:translateY(-2px); }
+.pkg-card.active { border-color:#3ddc97; background:#1B3D33; }
+.pkg-card .pname { color:rgba(255,255,255,.85); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.4px; }
+.pkg-card.active .pname { color:#3ddc97; }
+.pkg-card .prate { color:rgba(255,255,255,.45); font-size:11px; margin:4px 0 12px; }
+.pkg-card .pcost { color:#fff; font-weight:700; font-size:19px; }
+
+.est-disclaimer {
+    background:#2A2416; border:1px solid #4a3f22; border-radius:12px;
+    padding:16px 18px; color:#e8dcb5; font-size:12.5px; line-height:1.65;
+}
+.est-disclaimer b { color:#f5cd6b; }
+
+.breakdown-card { background:#fff; border-radius:20px; padding:28px 28px 8px; margin-bottom:16px; }
+.breakdown-head h3 { font-size:17px; color:#1A1A1A; margin-bottom:4px; }
+.breakdown-head p { font-size:12.5px; color:#8a8a8a; margin-bottom:18px; }
+
+.stage-row {
+    display:grid; grid-template-columns: 160px 1fr 68px; gap:16px; align-items:center;
+    padding:13px 0; border-bottom:1px solid #F0EBE2;
+}
+.stage-row:last-child { border-bottom:none; }
+.stage-label { font-size:10.5px; font-weight:700; color:#5a5a5a; text-transform:uppercase; letter-spacing:.3px; line-height:1.45; }
+.stage-bar-track { background:#EFEAE1; border-radius:6px; height:10px; overflow:hidden; }
+.stage-bar-fill { background:#0D5C4D; height:100%; border-radius:6px; }
+.stage-cost { font-size:12.5px; font-weight:700; color:#1A1A1A; text-align:right; white-space:nowrap; }
+
+.floor-toggle-card { background:#fff; border-radius:20px; overflow:hidden; }
+.floor-toggle-head {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:20px 28px; cursor:pointer; font-weight:600; font-size:14.5px; color:#1A1A1A;
+}
+.floor-toggle-body { max-height:0; overflow:hidden; transition:max-height .3s ease; padding:0 28px; }
+.floor-toggle-body.open { max-height:400px; padding-bottom:22px; }
+.chev { transition:.25s; display:inline-block; color:#0D5C4D; }
+.chev.open { transform:rotate(180deg); }
+
+/* ============ Section shared ============ */
+.section { margin: 0 auto; padding: 0 56px 60px; }
+.section-head { text-align:center; margin-bottom: 30px; }
+.section-head h2 { font-size:24px; color:#0D5C4D; margin-bottom:8px; }
+.section-head p { font-size:14px; color:#8a8a8a; max-width:560px; margin:0 auto; }
+
+/* ============ Package comparison table ============ */
+.compare-wrap { overflow-x:auto; border:1px solid #E0D8CE; border-radius:16px; background:#fff; }
+.compare-table { width:100%; border-collapse:collapse; min-width:720px; font-size:13px; }
+.compare-table th { background:#0D5C4D; color:#fff; padding:14px 16px; text-align:left; font-size:13px; font-weight:600; }
+.compare-table th.pop { position:relative; padding-top:30px; }
+.badge-pop {
+    position:absolute; top:6px; left:50%; transform:translateX(-50%);
+    background:#3ddc97; color:#0D5C4D; font-size:9.5px; font-weight:700;
+    padding:3px 10px; border-radius:10px; white-space:nowrap; letter-spacing:.3px;
+}
+.compare-table td { padding:12px 16px; border-bottom:1px solid #F0EBE2; color:#4a4a4a; }
+.compare-table tr:nth-child(even) td { background:#FBF8F3; }
+.compare-table td:first-child { font-weight:600; color:#1A1A1A; white-space:nowrap; }
+
+/* ============ Exclusions / Tips ============ */
+.two-col { display:grid; grid-template-columns: 1fr 1fr; gap:24px; }
+.info-card { background:#fff; border:1px solid #E0D8CE; border-radius:16px; padding:24px 26px; }
+.info-card h3 { font-size:16px; color:#0D5C4D; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.info-card ul { list-style:none; }
+.info-card li { font-size:13.5px; color:#4a4a4a; padding:7px 0 7px 22px; position:relative; line-height:1.5; border-bottom:1px solid #F5F1E9; }
+.info-card li:last-child { border-bottom:none; }
+.info-card li::before { content:"—"; position:absolute; left:0; color:#0D5C4D; }
+.info-card.tips li::before { content:"✓"; color:#2ECC71; font-weight:700; }
+
+/* ============ FAQ ============ */
+.faq-item { background:#fff; border:1px solid #E0D8CE; border-radius:12px; margin-bottom:10px; overflow:hidden; }
+.faq-q {
+    padding:16px 20px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+    font-size:14.5px; font-weight:600; color:#1A1A1A;
+}
+.faq-q .plus { font-size:18px; color:#0D5C4D; transition:.2s; }
+.faq-item.open .plus { transform: rotate(45deg); }
+.faq-a { max-height:0; overflow:hidden; transition:max-height .25s ease; }
+.faq-item.open .faq-a { max-height:300px; }
+.faq-a p { padding:0 20px 18px; font-size:13.5px; color:#6B6B6B; line-height:1.65; }
+
+/* ============ CTA ============ */
+.cta-box {
+    margin: 0 auto 70px; padding: 0 56px;
+}
+.cta-inner {
+    background:#0D5C4D; border-radius:20px; padding:36px 40px; text-align:center; color:#fff;
+}
+.cta-inner h3 { font-size:21px; margin-bottom:8px; }
+.cta-inner p { font-size:13.5px; opacity:.85; margin-bottom:20px; }
+.cta-inner a {
+    display:inline-block; background:#fff; color:#0D5C4D; text-decoration:none;
+    font-weight:700; padding:12px 26px; border-radius:10px; font-size:14px;
+}
+
+.footer { text-align:center; padding:24px; font-size:12.5px; color:#8a8a8a; }
+
+@media (max-width: 980px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero-left { text-align:center; padding-top:10px; margin:0 auto; }
+    .hero p.sub { margin-left:auto; margin-right:auto; text-align:center; }
+    .stat-row { justify-content:center; }
+    .rate-chip-row { justify-content:center; }
+    .rate-note { text-align:center; }
+    .hero-right { position:static; margin-top: 30px; }
+    .brand-mini { margin-left: 44px; }
+}
+@media (max-width: 760px) {
+    .top-bar { padding: 18px 20px; }
+    .brand-mini { margin-left: 40px; }
+    .hero { padding: 24px 20px 0; }
+    .section { padding: 0 20px 50px; }
+    .cta-box { padding: 0 20px; }
+    .calc-card { padding: 28px 22px; }
+    .calc-grid { grid-template-columns: repeat(2,1fr); gap:14px; }
+    .two-col { grid-template-columns: 1fr; }
+    .hero h1 { font-size:28px; }
+    .hero-grid { gap: 30px; }
+    .result-total { flex-direction:column; align-items:flex-start; }
+    .result-total .builtup { text-align:left; }
+    .estimate-wrap { padding: 0 20px 50px; }
+    .estimate-card { padding: 26px 20px; border-radius:20px; }
+    .estimate-grid { grid-template-columns: 1fr; gap:28px; }
+    .package-cards { grid-template-columns: repeat(2,1fr); }
+    .stage-row { grid-template-columns: 1fr; gap:6px; }
+    .stage-cost { text-align:left; }
+    .breakdown-card { padding:22px 18px 6px; }
+}
+</style>
+</head>
+<body>
+
+<button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+        <div class="sidebar-logo" onclick="window.location.href='app.html'" title="Back to NEXTRACK Assistant">
+            <div class="sidebar-logo-text">N</div>
+        </div>
+        <nav class="sidebar-nav">
+            <button class="nav-item" data-tooltip="Search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+            </button>
+            <button class="nav-item" data-tooltip="New Chat">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+            </button>
+            <button class="nav-item active" data-tooltip="Calculate Budget">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><path d="M8 6h8M8 10h8M8 14h4"></path></svg>
+            </button>
+            <button class="nav-item" data-tooltip="Construction SOP's">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </button>
+            <button class="nav-item" data-tooltip="Quality Checklists" onclick="window.location.href='quality-checklist.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            </button>
+            <button class="nav-item" data-tooltip="Project" onclick="window.location.href='budget-tracking-system.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </button>
+            <button class="nav-item" data-tooltip="History">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </button>
+        </nav>
+    </div>
+    <div class="sidebar-bottom">
+        <div class="user-avatar"><span>B</span></div>
+    </div>
+</aside>
+
+<header class="top-bar">
+    <div class="brand-mini" onclick="window.location.href='app.html'">
+        <div class="dot">N</div>
+        <span>NEXTRACK</span>
+    </div>
+    <div class="auth-buttons">
+        <a href="app.html" class="sign-in">My Account</a>
+        <a href="index.html" class="sign-up" onclick="try{localStorage.removeItem('nextrack-user')}catch(e){}">Log out</a>
+    </div>
+</header>
+
+<!-- HERO (split: left content, right calculator form) -->
+<section class="hero">
+  <div class="hero-grid">
+
+    <!-- LEFT: Content (structure follows reference exactly) -->
+    <div class="hero-left">
+        <h1>House Construction<br>Cost Calculator</h1>
+
+        <div class="stat-row">
+            <div class="stat"><b>500+</b><span>Homes built</span></div>
+            <div class="stat"><b>150+</b><span>Quality checks completed</span></div>
+            <div class="stat"><b>10</b><span>Cities served</span></div>
+        </div>
+
+        <p class="sub">Use our house construction cost calculator to get free, package-wise estimates instantly. Residential construction in Pakistan costs <b>Rs 2,850&ndash;Rs 6,200</b> per sqft depending on your city and package tier. A 5 Marla plot with Ground+1 construction typically runs <b>Rs 65L&ndash;Rs 90L</b> at Standard to Premium rates. Every estimate reflects current material and labour rates across major Pakistani cities.</p>
+
+        <div class="rates-box">
+            <div class="rates-label">Indicative rates per sqft</div>
+            <div class="rate-chip-row">
+                <div class="rate-chip"><span class="tier">Basic</span><span class="amount">Rs 3,100</span></div>
+                <div class="rate-chip"><span class="tier">Standard</span><span class="amount">Rs 3,650</span></div>
+                <div class="rate-chip"><span class="tier">Premium</span><span class="amount">Rs 4,650</span></div>
+                <div class="rate-chip"><span class="tier">Luxury</span><span class="amount">Rs 6,200</span></div>
+            </div>
+            <p class="rate-note">Rates vary by city and site conditions.</p>
+        </div>
+
+        <h3 class="mini-head">How are these rates estimated?</h3>
+        <p class="sub small">Rates are based on city-level construction cost inputs such as plot size, number of floors, material and labour rates, foundation and soil type. Final pricing may vary based on location, soil condition, design complexity, approvals, material selection and structural requirements.</p>
+    </div>
+
+    <!-- RIGHT: Calculator Form -->
+    <div class="hero-right">
+        <div class="calc-wrap">
+            <div class="calc-card">
+                <h2>Calculate My Estimate</h2>
+                <p class="calc-sub">Fill in your plot and preference details to get a floor-wise cost breakdown.</p>
+
+                <div class="calc-grid">
+                    <div class="field">
+                        <label>Plot Size</label>
+                        <select id="plotSize">
+                            <option value="3">3 Marla</option>
+                            <option value="5" selected>5 Marla</option>
+                            <option value="7">7 Marla</option>
+                            <option value="10">10 Marla</option>
+                            <option value="12">12 Marla</option>
+                            <option value="20">1 Kanal</option>
+                            <option value="40">2 Kanal</option>
+                        </select>
+                        <div class="hint">1 Marla ≈ 225 sqft</div>
+                    </div>
+
+                    <div class="field">
+                        <label>City</label>
+                        <select id="city">
+                            <option value="1.05">Karachi</option>
+                            <option value="1.00" selected>Lahore</option>
+                            <option value="1.02">Islamabad</option>
+                            <option value="1.00">Rawalpindi</option>
+                            <option value="0.92">Faisalabad</option>
+                            <option value="0.90">Multan</option>
+                            <option value="0.88">Peshawar</option>
+                            <option value="0.85">Other City</option>
+                        </select>
+                        <div class="hint">Rates vary by local labour & material cost</div>
+                    </div>
+
+                    <div class="field">
+                        <label>Floors</label>
+                        <select id="floors">
+                            <option value="1">Ground Only</option>
+                            <option value="2" selected>Ground + 1</option>
+                            <option value="3">Ground + 2</option>
+                            <option value="4">Ground + 3</option>
+                        </select>
+                        <div class="hint">Each extra floor adds cost incrementally</div>
+                    </div>
+
+                    <div class="field">
+                        <label>Finishing Package</label>
+                        <select id="package">
+                            <option value="3100">Basic</option>
+                            <option value="3650" selected>Standard Finish</option>
+                            <option value="4650">Premium Finish</option>
+                            <option value="6200">Luxury Finish</option>
+                        </select>
+                        <div class="hint">See comparison table below</div>
+                    </div>
+                </div>
+
+                <div class="calc-toggle-row">
+                    <label class="toggle-item"><input type="checkbox" id="boundaryWall" checked> Include boundary wall</label>
+                    <label class="toggle-item"><input type="checkbox" id="parking" checked> Include car porch / parking</label>
+                </div>
+
+                <button class="calc-btn" onclick="calculateBudget()">Calculate My Budget</button>
+            </div>
+        </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- DETAILED ESTIMATE (opens below hero after Calculate is clicked) -->
+<div class="estimate-wrap" id="estimateSection" style="display:none;">
+    <div class="estimate-card">
+        <div class="estimate-grid">
+
+            <!-- LEFT: Total + package cards + disclaimer -->
+            <div class="estimate-left">
+                <div class="est-eyebrow">YOUR ESTIMATE</div>
+                <div class="est-total" id="estTotalBig">Rs 0</div>
+                <div class="est-meta" id="estMeta">Standard · 0 sqft · G+1 · Lahore · Rs 0/sqft</div>
+
+                <div class="package-cards" id="packageCards"></div>
+
+                <div class="est-disclaimer">
+                    <b>This is an indicative estimate based on standard site conditions.</b> Your actual cost may vary depending on soil type, plot shape, site access, and design customisations. Consult a professional contractor for a precise, itemised quote.
+                </div>
+            </div>
+
+            <!-- RIGHT: Stagewise breakdown + floor-wise toggle -->
+            <div class="estimate-right">
+                <div class="breakdown-card">
+                    <div class="breakdown-head">
+                        <h3>Stagewise Breakdown of Costs</h3>
+                        <p id="breakdownSub">Standard package · 0 sqft</p>
+                    </div>
+                    <div class="stage-list" id="stageList"></div>
+                </div>
+
+                <div class="floor-toggle-card">
+                    <div class="floor-toggle-head" onclick="toggleFloorBreakdown()">
+                        <span>Floor-wise Breakdown of Costs</span>
+                        <span class="chev" id="floorChevron">⌄</span>
+                    </div>
+                    <div class="floor-toggle-body" id="floorToggleBody">
+                        <table class="floor-table">
+                            <thead><tr><th>Floor</th><th>Area (sqft)</th><th>Rate/sqft</th><th>Cost</th></tr></thead>
+                            <tbody id="floorTableBody2"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- PACKAGE COMPARISON -->
+<div class="section">
+    <div class="section-head">
+        <h2>What's Included in Each Package</h2>
+        <p>Material and finishing grade comparison across all four packages, typical of Pakistan's residential market.</p>
+    </div>
+    <div class="compare-wrap">
+        <table class="compare-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Basic</th>
+                    <th class="pop"><span class="badge-pop">Most Chosen</span>Standard Finish</th>
+                    <th>Premium Finish</th>
+                    <th>Luxury Finish</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Cement</td><td>Local / DG / Fauji</td><td>Lucky / Bestway</td><td>Lucky / DG Premium</td><td>Lucky Platinum grade</td></tr>
+                <tr><td>Steel (Grade 60)</td><td>Local re-rolled</td><td>Mughal / Ittehad</td><td>Amreli / Agha Steel</td><td>Agha Steel Premium</td></tr>
+                <tr><td>Bricks</td><td>Local Awwal</td><td>Awwal grade</td><td>Machine-pressed</td><td>Machine-pressed / Block</td></tr>
+                <tr><td>Sanitary Fittings</td><td>Local / economy grade</td><td>Sonex / Master</td><td>Master / Porta</td><td>Imported (Kohler equivalent)</td></tr>
+                <tr><td>Floor Tiles</td><td>Local budget tiles</td><td>Master Tiles</td><td>Diamond / Imported</td><td>Imported Marble / Porcelain</td></tr>
+                <tr><td>Paint</td><td>Economy emulsion</td><td>ICI Dulux Weathershield</td><td>ICI Dulux Velvet Touch</td><td>Berger Luxury / Textured</td></tr>
+                <tr><td>Doors (Main)</td><td>Economy membrane door</td><td>Diyar wood</td><td>Kail / Deodar wood</td><td>Solid Sheesham / Imported</td></tr>
+                <tr><td>Windows</td><td>Basic aluminium</td><td>Aluminium</td><td>Powder-coated Aluminium</td><td>UPVC / Imported profiles</td></tr>
+                <tr><td>Electrical Wiring</td><td>Basic conduit</td><td>Pakistan Cables</td><td>Newage / Fast Cables</td><td>Fast Cables + smart provisions</td></tr>
+                <tr><td>Kitchen Cabinets</td><td>Not included</td><td>Not included</td><td>Laminated MDF</td><td>Modular imported finish</td></tr>
+                <tr><td>Approx. uplift vs Basic</td><td>Baseline</td><td>+18%</td><td>+50%</td><td>+100%</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- EXCLUSIONS / TIPS -->
+<div class="section">
+    <div class="two-col">
+        <div class="info-card">
+            <h3>🚫 Not Included In This Estimate</h3>
+            <ul>
+                <li>Land / plot purchase cost</li>
+                <li>Boundary wall beyond standard height</li>
+                <li>Water boring & submersible pump (Rs 1.5 - 3 lakh)</li>
+                <li>Overhead water tank & underground sump</li>
+                <li>WAPDA / K-Electric & SNGPL connection charges</li>
+                <li>Town planning / map approval fees</li>
+                <li>Interior work: kitchen, wardrobes, furniture</li>
+                <li>Landscaping and external development</li>
+            </ul>
+        </div>
+        <div class="info-card tips">
+            <h3>💡 Tips to Save Without Cutting Quality</h3>
+            <ul>
+                <li>Finalise your floor plan before structure work begins</li>
+                <li>Stack kitchens & bathrooms on same layout across floors</li>
+                <li>Use standard tile sizes (2x2 ft) to cut wastage</li>
+                <li>Fix all electrical & plumbing points before plastering</li>
+                <li>Start structure work between October–March (dry season)</li>
+                <li>Keep a 10-15% contingency buffer in your total budget</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ -->
+<div class="section">
+    <div class="section-head">
+        <h2>Frequently Asked Questions</h2>
+        <p>Common questions about construction costs in Pakistan.</p>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How is construction cost per sqft calculated in Pakistan? <span class="plus">+</span></div>
+        <div class="faq-a"><p>Total cost is calculated as built-up area (in sqft) multiplied by the per-sqft rate for your chosen package. Built-up area includes covered space across all floors, but not open courtyards. The per-sqft rate depends on your city, package tier, and number of floors.</p></div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What is the difference between a Marla and a square foot? <span class="plus">+</span></div>
+        <div class="faq-a"><p>A Marla is a traditional land measurement unit used across Pakistan and India. In most cities, 1 Marla is approximately 225 sqft, and 1 Kanal equals 20 Marla (about 4,500 sqft). This calculator uses the standard 225 sqft conversion.</p></div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What does the "Basic" package include? <span class="plus">+</span></div>
+        <div class="faq-a"><p>The Basic package covers a complete, move-in ready home built with economy-grade materials — structure, plumbing, electrical, doors, windows, tiles and paint are all included, just using more budget-friendly local brands than the Standard, Premium, and Luxury tiers.</p></div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Why does construction cost vary between cities? <span class="plus">+</span></div>
+        <div class="faq-a"><p>Labour rates, material transport cost, and local market competition all vary by city. Karachi and Islamabad tend to have slightly higher rates due to labour demand and logistics, while smaller cities like Faisalabad or Multan are generally more economical.</p></div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How accurate is this estimate? <span class="plus">+</span></div>
+        <div class="faq-a"><p>This calculator gives a planning-stage estimate based on typical market rates. Actual cost can vary ±10-15% depending on soil conditions, design complexity, material price fluctuations, and site-specific factors. Always get a detailed quote from a contractor before finalising your budget.</p></div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What is the best time of year to start construction in Pakistan? <span class="plus">+</span></div>
+        <div class="faq-a"><p>October to March is generally ideal across most of Pakistan — dry weather supports better curing and material handling. Starting before the monsoon (June–September) helps ensure your structure and roofing are complete before heavy rains.</p></div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I switch packages after starting construction? <span class="plus">+</span></div>
+        <div class="faq-a"><p>Yes, but it's best to finalise your package before structural work begins. Switching finishing packages mid-way (e.g., from Standard to Premium) is usually possible without major rework, since finishing work happens after the structural shell is complete.</p></div>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-box">
+    <div class="cta-inner">
+        <h3>Ready to track your actual construction spending?</h3>
+        <p>Once you start building, use our Budget Tracking System to monitor real-time expenses against this estimate.</p>
+        <a href="budget-tracking-system.html">Open Budget Tracking System</a>
+    </div>
+</div>
+
+<footer class="footer">
+    Residential Construction • AI-Powered Project Control
+</footer>
+
+<script>
+const menuBtn = document.getElementById('menuBtn');
+const sidebar = document.getElementById('sidebar');
+menuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    menuBtn.classList.toggle('open');
+});
+
+function toggleFaq(el) {
+    const item = el.parentElement;
+    document.querySelectorAll('.faq-item').forEach(i => { if (i !== item) i.classList.remove('open'); });
+    item.classList.toggle('open');
+}
+
+const MARLA_TO_SQFT = 225;
+const COVERAGE_FACTOR = 0.82; // typical buildable footprint after setbacks
+const FLOOR_MULTIPLIER = [1.0, 0.90, 0.85, 0.80]; // ground floor full rate, upper floors slightly cheaper
+
+const PACKAGES = [
+    { key:'basic',   name:'Basic',    rate:3100 },
+    { key:'standard',name:'Standard', rate:3650 },
+    { key:'premium', name:'Premium',  rate:4650 },
+    { key:'luxury',  name:'Luxury',   rate:6200 }
+];
+
+// Typical construction stage cost distribution (% of total, before floor-based adjustment)
+const STAGE_TEMPLATE = [
+    { label: 'Mobilisation, Design & Drawing', pct: 5, minFloors: 1 },
+    { label: 'Foundation Works', pct: 12, minFloors: 1 },
+    { label: 'GF Structural Works', pct: 16, minFloors: 1 },
+    { label: 'Upper Floor Structural Works', pct: 18, minFloors: 2 },
+    { label: 'External Plastering, Doors, Electrical & Plumbing Rough-in', pct: 14, minFloors: 1 },
+    { label: 'GF Internal Plastering, Waterproofing, Wall Cladding, Flooring', pct: 13, minFloors: 1 },
+    { label: 'Upper Floor Internal Plastering, Waterproofing, Flooring', pct: 12, minFloors: 2 },
+    { label: 'Painting, Fixtures, Electrical & Plumbing Installation, Misc.', pct: 20, minFloors: 1 }
+];
+
+// Core calculator: returns {totalCost, totalArea, floorRows[]} for a given package rate + current form inputs
+function computeEstimate(baseRate) {
+    const marla = parseFloat(document.getElementById('plotSize').value);
+    const cityMultiplier = parseFloat(document.getElementById('city').value);
+    const totalFloors = parseInt(document.getElementById('floors').value);
+    const includeBoundary = document.getElementById('boundaryWall').checked;
+    const includeParking = document.getElementById('parking').checked;
+
+    const plotAreaSqft = marla * MARLA_TO_SQFT;
+    const builtUpPerFloor = Math.round(plotAreaSqft * COVERAGE_FACTOR);
+
+    let totalCost = 0;
+    let totalArea = 0;
+    const floorRows = [];
+
+    for (let i = 0; i < totalFloors; i++) {
+        const floorMult = FLOOR_MULTIPLIER[i] || 0.78;
+        const rate = Math.round(baseRate * cityMultiplier * floorMult);
+        const cost = builtUpPerFloor * rate;
+        totalCost += cost;
+        totalArea += builtUpPerFloor;
+        floorRows.push({ name: i === 0 ? 'Ground Floor' : `Floor ${i}`, area: builtUpPerFloor, rate, cost });
+    }
+
+    let boundaryCost = 0, parkingCost = 0;
+    if (includeBoundary) {
+        const side = Math.sqrt(plotAreaSqft);
+        const perimeter = side * 4;
+        boundaryCost = Math.round(perimeter * 9 * 350);
+        totalCost += boundaryCost;
+    }
+    if (includeParking) {
+        parkingCost = 130 * Math.round(baseRate * cityMultiplier * 0.7);
+        totalCost += parkingCost;
+    }
+
+    return { totalCost, totalArea, floorRows, boundaryCost, parkingCost, cityMultiplier, totalFloors, builtUpPerFloor, avgRate: Math.round(baseRate * cityMultiplier) };
+}
+
+function calculateBudget(shouldScroll = true) {
+    const selectedRate = parseFloat(document.getElementById('package').value);
+    const selectedPkg = PACKAGES.find(p => p.rate === selectedRate) || PACKAGES[1];
+    const cityName = document.getElementById('city').selectedOptions[0].text;
+    const floorsLabel = document.getElementById('floors').selectedOptions[0].text;
+
+    const main = computeEstimate(selectedRate);
+
+    // ---- LEFT: total + meta ----
+    document.getElementById('estTotalBig').textContent = `Rs ${main.totalCost.toLocaleString()}`;
+    document.getElementById('estMeta').textContent =
+        `${selectedPkg.name} · ${main.totalArea.toLocaleString()} sqft · ${floorsLabel} · ${cityName} · Rs ${main.avgRate.toLocaleString()}/sqft`;
+
+    // ---- LEFT: package comparison cards (clickable — switches package & recalculates) ----
+    let pkgHtml = '';
+    PACKAGES.forEach(pkg => {
+        const est = computeEstimate(pkg.rate);
+        const isActive = pkg.rate === selectedRate;
+        pkgHtml += `
+            <div class="pkg-card ${isActive ? 'active' : ''}" onclick="selectPackage(${pkg.rate})">
+                <div class="pname">${pkg.name}</div>
+                <div class="prate">Rs ${pkg.rate.toLocaleString()}/sqft</div>
+                <div class="pcost">Rs ${(est.totalCost/100000).toFixed(2)}L</div>
+            </div>`;
+    });
+    document.getElementById('packageCards').innerHTML = pkgHtml;
+
+    // ---- RIGHT: stagewise breakdown ----
+    document.getElementById('breakdownSub').textContent = `${selectedPkg.name} package · ${main.totalArea.toLocaleString()} sqft`;
+
+    const activeStages = STAGE_TEMPLATE.filter(s => main.totalFloors >= s.minFloors);
+    const pctSum = activeStages.reduce((sum, s) => sum + s.pct, 0);
+    const stageCosts = activeStages.map(s => ({ label: s.label, cost: main.totalCost * (s.pct / pctSum) }));
+    const maxStageCost = Math.max(...stageCosts.map(s => s.cost));
+
+    let stageHtml = '';
+    stageCosts.forEach(s => {
+        const barPct = Math.max(6, Math.round((s.cost / maxStageCost) * 100));
+        const costLakh = (s.cost / 100000).toFixed(2);
+        stageHtml += `
+            <div class="stage-row">
+                <div class="stage-label">${s.label}</div>
+                <div class="stage-bar-track"><div class="stage-bar-fill" style="width:${barPct}%"></div></div>
+                <div class="stage-cost">~Rs ${costLakh}L</div>
+            </div>`;
+    });
+    document.getElementById('stageList').innerHTML = stageHtml;
+
+    // ---- RIGHT: floor-wise table (reuses main package's floor rows) ----
+    let floorRowsHtml = '';
+    main.floorRows.forEach(f => {
+        floorRowsHtml += `<tr><td>${f.name}</td><td>${f.area.toLocaleString()}</td><td>Rs ${f.rate.toLocaleString()}</td><td>Rs ${f.cost.toLocaleString()}</td></tr>`;
+    });
+    if (main.boundaryCost) floorRowsHtml += `<tr><td>Boundary Wall</td><td>—</td><td>—</td><td>Rs ${main.boundaryCost.toLocaleString()}</td></tr>`;
+    if (main.parkingCost) floorRowsHtml += `<tr><td>Car Porch</td><td>130</td><td>—</td><td>Rs ${main.parkingCost.toLocaleString()}</td></tr>`;
+    floorRowsHtml += `<tr><td colspan="3">Total Estimated Cost</td><td>Rs ${main.totalCost.toLocaleString()}</td></tr>`;
+    document.getElementById('floorTableBody2').innerHTML = floorRowsHtml;
+
+    // ---- Show section ----
+    const section = document.getElementById('estimateSection');
+    section.style.display = 'block';
+    if (shouldScroll) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function toggleFloorBreakdown() {
+    const body = document.getElementById('floorToggleBody');
+    const chev = document.getElementById('floorChevron');
+    body.classList.toggle('open');
+    chev.classList.toggle('open');
+}
+
+function selectPackage(rate) {
+    document.getElementById('package').value = rate;
+    calculateBudget(false);
+}
+</script>
+
+</body>
+</html>
