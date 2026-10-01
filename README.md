@@ -1,16 +1,40 @@
-# React + Vite
+# NV Homes / NEXTRACK frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Two front ends live here:
 
-Currently, two official plugins are available:
+| URL | What | Source |
+|---|---|---|
+| `/` | Static NEXTRACK pages (home, calculator, budget tracking, checklists, timeline) | `*.html` in the repo root |
+| `/portal/` | React app (cost calculator, project dashboard) wired to the API | `portal/index.html` -> `src/` |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Run locally
 
-## React Compiler
+1. Start the API (FastAPI, in the `NVHomes_RAG_Prototype` repo):
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+   ```bash
+   cd ../NVHomes_RAG_Prototype/backend
+   uvicorn app.main:app --reload --port 8000
+   ```
 
-## Expanding the ESLint configuration
+2. Start the frontend:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+   ```bash
+   cp .env.example .env      # defaults are fine for local dev
+   npm install
+   npm run dev               # http://localhost:5173/portal/
+   ```
+
+   Vite proxies `/api` to `http://localhost:8000`, so there is no CORS setup in dev.
+
+## Talking to the API
+
+- `src/api/client.js` - fetch wrapper (base URL, Bearer token, timeout, `ApiError` with `status`, `code`, `field`).
+- `src/api/endpoints.js` - one function per endpoint; pages import from here, never call `fetch` directly.
+- `src/hooks/useApi.js` - `{data, error, loading, reload}` with cancellation.
+- API docs: http://localhost:8000/docs
+
+## Build
+
+`npm run build` outputs every static page plus `dist/portal/`. Set `VITE_API_BASE_URL`
+to the API origin for production builds and add that frontend origin to the API's
+`NVHOMES_CORS_ORIGINS`.
