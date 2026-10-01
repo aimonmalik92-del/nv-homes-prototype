@@ -80,3 +80,8 @@ export const schedule = {
 export const assistant = {
   ask: (question, projectId) => request("/api/assistant/query", { method: "POST", body: { question, project_id: projectId } }),
 };
+
+// --- one-time import of the old static pages' browser data ------------------------
+export const importer = {
+  browserData: (id, payload) => request(`${p(id)}/import/browser-data`, { method: "POST", body: payload }),
+};

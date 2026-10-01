@@ -5,7 +5,16 @@ Two front ends live here:
 | URL | What | Source |
 |---|---|---|
 | `/` | Static NEXTRACK pages (home, calculator, budget tracking, checklists, timeline) | `*.html` in the repo root |
-| `/portal/` | React app (cost calculator, project dashboard) wired to the API | `portal/index.html` -> `src/` |
+| `/portal/` | React app wired to the API | `portal/index.html` -> `src/` |
+
+Portal routes: `/portal/dashboard`, `/portal/budget` (activity budgets and expenses),
+`/portal/checklists` and `/portal/checklists/:no` (quality checklists, autosave),
+`/portal/timeline` (CPM Gantt with baseline), `/portal/budget-calculator`.
+
+The static budget, checklist and timeline pages saved data only in the browser. The
+portal shows a one-time **Import** banner when it finds that data and copies it to the
+server (`POST /api/projects/{id}/import/browser-data`); re-running it never duplicates
+expenses. `app.html` now links to the portal versions of these three tools.
 
 ## Run locally
 

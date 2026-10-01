@@ -1,4 +1,5 @@
 import { useEffect, useState, Fragment } from 'react'
+import { Link } from 'react-router-dom'
 import { assistant, auth, budget, checklists as checklistApi, projects, schedule as scheduleApi } from '../api/endpoints'
 import { formatLacs, formatRs } from '../api/format'
 import { useApi } from '../hooks/useApi'
@@ -297,10 +298,10 @@ function Dashboard({ onSignOut }) {
               </div>
 
               <div className="grid grid-cols-4 gap-4 w-full max-w-[700px] mb-5">
-                <FeatureCard icon="📋" title="Activity Tracker" subtitle="Budget · QC · Timeline" />
+                <FeatureCard to="/budget" icon="📋" title="Activity Tracker" subtitle="Budget · QC · Timeline" />
                 <FeatureCard icon="📖" title="Project SOP's" subtitle="Step-by-step guides" />
-                <FeatureCard icon="🧾" title="Bills & Expenses" subtitle="AI OCR upload" />
-                <FeatureCard icon="✅" title="QC Reports" subtitle="Pass · Hold · Pending" />
+                <FeatureCard to="/budget" icon="🧾" title="Bills & Expenses" subtitle="Expenses per activity" />
+                <FeatureCard to="/checklists" icon="✅" title="QC Reports" subtitle="Pass · Hold · Pending" />
               </div>
 
               <div className="text-center text-xs text-slate-500">
@@ -371,7 +372,7 @@ function Dashboard({ onSignOut }) {
             <div className="bg-white rounded-xl border border-[#F1CBB5] p-3 shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2"><span className="text-[#356D65] text-xs">✅</span><span className="text-xs font-semibold text-slate-800">Quality Assurance Checklists</span></div>
-                <span className="text-[10px] text-slate-400">{qcQ.data.by_status.completed}/{qcQ.data.activity_count} done</span>
+                <Link to="/checklists" className="text-[10px] text-[#356D65] underline">{qcQ.data.by_status.completed}/{qcQ.data.activity_count} done · open</Link>
               </div>
               <table className="w-full text-[10px]">
                 <thead><tr className="text-slate-500 border-b border-[#F1CBB5]"><th className="text-left py-1 font-medium">NAME</th><th className="text-right py-1 font-medium">ITEMS</th><th className="text-right py-1 font-medium">YES</th><th className="text-right py-1 font-medium">PROGRESS</th></tr></thead>
@@ -408,7 +409,7 @@ function Dashboard({ onSignOut }) {
               </div>
               <div className="bg-white border border-[#F1CBB5] rounded-xl p-3 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-2"><div className="w-8 h-8 bg-[#F7ECDF] rounded-lg flex items-center justify-center text-base">🏗️</div><div className="text-xs font-semibold text-slate-800">Check Real Time Progress</div></div>
-                <button className="text-[10px] bg-[#356D65] text-white px-2.5 py-1 rounded-lg font-medium hover:bg-[#2a574f] transition">Details</button>
+                <Link to="/timeline" className="text-[10px] bg-[#356D65] text-white px-2.5 py-1 rounded-lg font-medium hover:bg-[#2a574f] transition">Details</Link>
               </div>
             </div>
           </div>
@@ -427,13 +428,14 @@ function Dashboard({ onSignOut }) {
   )
 }
 
-function FeatureCard({ icon, title, subtitle }) {
+function FeatureCard({ icon, title, subtitle, to }) {
+  const Tag = to ? Link : 'div'
   return (
-    <div className="bg-white border border-[#F1CBB5] hover:border-[#356D65] hover:shadow-md rounded-xl cursor-pointer transition group p-4">
+    <Tag to={to} className="block bg-white border border-[#F1CBB5] hover:border-[#356D65] hover:shadow-md rounded-xl cursor-pointer transition group p-4">
       <div className="bg-[#F7ECDF] group-hover:bg-[#F1CBB5] rounded-lg flex items-center justify-center transition w-10 h-10 text-xl mb-3">{icon}</div>
       <div className="font-semibold text-slate-800 text-sm">{title}</div>
       <div className="text-slate-500 mt-0.5 text-xs">{subtitle}</div>
-    </div>
+    </Tag>
   )
 }
 

@@ -136,7 +136,7 @@
                     </svg>
                 </button>
 
-                <button class="nav-item" data-tooltip="Quality Checklists" onclick="window.location.href='quality-checklist.html'">
+                <button class="nav-item" data-tooltip="Quality Checklists" onclick="window.location.href='/portal/checklists'">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 11l3 3L22 4"></path>
                         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
@@ -196,9 +196,9 @@
 
             <div class="suggestions">
                 <button class="chip" id="calculateBudgetChip" onclick="window.location.href='calculate-budget.html'">Calculate Your House Budget</button>
-                <button class="chip" id="budgetTrackerChip" onclick="window.location.href='budget-tracking-system.html'">Track Your Real-Time Construction Budget</button>
-                <button class="chip" id="qualityChecklistChip" onclick="window.location.href='quality-checklist.html'">Track Construction Quality of Your Project</button>
-                <button class="chip" id="progressTimelineChip" onclick="window.location.href='progress-timeline.html'">Track Real-Time Progress of Your Project</button>
+                <button class="chip" id="budgetTrackerChip" onclick="window.location.href='/portal/budget'">Track Your Real-Time Construction Budget</button>
+                <button class="chip" id="qualityChecklistChip" onclick="window.location.href='/portal/checklists'">Track Construction Quality of Your Project</button>
+                <button class="chip" id="progressTimelineChip" onclick="window.location.href='/portal/timeline'">Track Real-Time Progress of Your Project</button>
             </div>
 
             <!-- Project at a glance (reads data saved by the Timeline and Checklist pages) -->
@@ -211,20 +211,20 @@
                         <div class="g-sub">4 packages &middot; floor-wise breakdown</div>
                         <div class="g-link">Calculate my budget ›</div>
                     </a>
-                    <a class="g-card" href="budget-tracking-system.html">
+                    <a class="g-card" href="/portal/budget">
                         <div class="g-top"><span class="g-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></span>Budget tracking</div>
                         <div class="g-val"><span id="gBud">0%</span><span style="font-size:14px;color:#8A8A8A;font-weight:600"> spent</span></div>
                         <div class="g-sub" id="gBudSub">Rs 0 of 125 Lacs</div>
                         <div class="g-bar"><i id="gBudBar" style="width:0"></i></div>
                     </a>
-                    <a class="g-card" href="progress-timeline.html">
+                    <a class="g-card" href="/portal/timeline">
                         <div class="g-top"><span class="g-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6h10M4 12h16M4 18h7"/></svg></span>Project progress</div>
                         <div class="g-val" id="gProg">0%</div>
                         <div class="g-sub" id="gProgSub">Grey 0% · Finishing 0%</div>
                         <div class="g-sub" id="gNext" style="color:#0D5C4D;font-weight:600">Next: Site Handover &amp; Mobilization</div>
                         <div class="g-bar two"><span><i id="gGrey" style="width:0"></i></span><span><i id="gFin" style="width:0"></i></span></div>
                     </a>
-                    <a class="g-card" href="quality-checklist.html">
+                    <a class="g-card" href="/portal/checklists">
                         <div class="g-top"><span class="g-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Quality checks</div>
                         <div class="g-val"><span id="gQc">0</span><span style="font-size:14px;color:#8A8A8A;font-weight:600"> / 145</span></div>
                         <div class="g-sub" id="gQcSub">0 of 25 checklists completed</div>

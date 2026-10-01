@@ -28,5 +28,6 @@ export function useCurrentProject(enabled) {
     const project = await projects.create(name);
     setState((s) => ({ ...s, project, list: [...s.list, project] }));
   };
-  return { ...state, create };
+  const select = (id) => setState((s) => ({ ...s, project: s.list.find((p) => p.id === id) ?? s.project }));
+  return { ...state, create, select };
 }

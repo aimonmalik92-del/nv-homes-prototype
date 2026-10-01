@@ -5,7 +5,8 @@ import "./Homepage.css";
 const chips = [
   { label: "Calculate Your House Budget", path: "/budget-calculator" },
   { label: "Track Your Real-Time Construction Budget", path: "/dashboard" },
-  { label: "Quality Checklist for Your House Construction", path: null },
+  { label: "Quality Checklist for Your House Construction", path: "/checklists" },
+  { label: "Track Real-Time Progress of Your Project", path: "/timeline" },
   { label: "SOP's for Your House Construction", path: null },
 ];
 
