@@ -4,7 +4,8 @@ import "./TopNav.css";
 const NAV_LINKS = [
   { label: "Budget Calculator", path: "/budget-calculator", active: true },
   { label: "Project Budget Tracking", path: "/dashboard" },
-  { label: "Quality Checklist", soon: true },
+  { label: "Quality Checklist", path: "/checklists" },
+  { label: "Timeline", path: "/timeline" },
   { label: "SOP's", soon: true },
 ];
 

@@ -1,14 +1,19 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* Global reset + body styles. Kept inside the "base" cascade layer: Tailwind v4
+   puts its utilities in a later layer, and an unlayered `* { padding: 0 }`
+   would beat every Tailwind padding/margin class in the app. */
+@layer base {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-body {
-    font-family: 'DM Sans', sans-serif;
-    background-color: #F7ECDF;
-    color: #1A1A1A;
-    min-height: 100vh;
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background-color: #F7ECDF;
+        color: #1A1A1A;
+        min-height: 100vh;
+    }
 }
 
 /* Hamburger */
